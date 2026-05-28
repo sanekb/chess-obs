@@ -1,0 +1,19 @@
+{
+  "lock": false,
+  "imports": {
+    "@hono/hono": "jsr:@hono/hono@^4.12.23",
+    "@preact/signals": "npm:@preact/signals@^2.9.1",
+    "clsx": "npm:clsx@^2.1.1",
+    "preact": "npm:preact@^10.29.2",
+    "repomix": "npm:repomix@^1.14.1"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  },
+  "tasks": {
+    "build": "deno bundle src/client/mod.jsx -o public/js/mod.js --minify",
+    "dev:server": "deno run -A --env-file=.env src/server/mod.js",
+    "dev": "deno task build && deno task dev:server"
+  }
+}
