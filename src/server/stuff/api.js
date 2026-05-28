@@ -1,10 +1,11 @@
 import { env } from "./env.js";
+import { throttleTtl } from "../../consts.js";
 
 const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
 const cache = { json: null, time: -Infinity };
 
 export async function getGamesViaApi() {
-  if (performance.now() - cache.time < 5e3) return cache.json;
+  if (performance.now() - cache.time < throttleTtl) return cache.json;
 
   const headers = {
     "User-Agent": `chess-obs/0.1.0 (contact: ${env.devEmail})`,

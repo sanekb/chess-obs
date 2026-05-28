@@ -4,7 +4,8 @@ import state from "../stuff/state.js";
 import { html } from "../stuff/layout.js";
 import { env } from "../stuff/env.js";
 import { notify as notifyWidget } from "./widget.js";
-import { getGamesViaApi } from "../stuff/chess.js";
+import { getGamesViaApi } from "../stuff/api.js";
+import { autoOff, interval } from "../../consts.js";
 
 export const app = new Hono()
   .basePath("/dashboard")
@@ -79,10 +80,10 @@ async function watch() {
           await refresh();
           await loop();
         }
-      }, 60e3);
+      }, interval);
     })();
 
-    state.autoOffId = setTimeout(watch, 3 * 60 * 60e3);
+    state.autoOffId = setTimeout(watch, autoOff);
   } else {
     clearTimeout(state.timerId);
     clearTimeout(state.autoOffId);
