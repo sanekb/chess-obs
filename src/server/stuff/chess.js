@@ -1,18 +1,18 @@
-import { devEmail, member } from "./env";
+import { env } from "./env.js";
 
 const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
 const cache = { json: null, time: -Infinity };
 
-async function getGamesViaApi() {
+export async function getGamesViaApi() {
   if (performance.now() - cache.time < 5e3) return cache.json;
 
   const headers = {
-    "User-Agent": `chess-obs/0.1.0 (contact: ${devEmail})`,
+    "User-Agent": `chess-obs/0.1.0 (contact: ${env.devEmail})`,
   };
 
   try {
     const response = await fetch(
-      `https://www.chess.com/callback/games/extended-archive?locale=en&username=${member}&page=1`,
+      `https://www.chess.com/callback/games/extended-archive?locale=en&username=${env.member}&page=1`,
       { headers },
     );
 
@@ -40,7 +40,7 @@ async function getGamesViaApi() {
     return json;
   } catch (error) {
     console.error(
-      `Не удалось загрузить данные для ${ member }:`,
+      `Не удалось загрузить данные для ${env.member}:`,
       error.message,
     );
     return mock;
