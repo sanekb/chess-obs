@@ -8,6 +8,7 @@ const app = new Hono();
 
 app.use("*", serveStatic({ root: "./public" }));
 
+app.get("/", (c) => c.redirect("/dashboard") )
 app.route("/", dashboard);
 app.route("/", widget);
 

@@ -2,7 +2,7 @@ import { env } from "./env.js";
 import { throttleTtl } from "../../consts.js";
 
 const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
-const cache = { json: null, time: -Infinity };
+const cache = { json: mock, time: Infinity };
 
 export async function getGamesViaApi() {
   if (performance.now() - cache.time < throttleTtl) return cache.json;
