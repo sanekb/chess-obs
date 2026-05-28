@@ -13,7 +13,8 @@
   },
   "tasks": {
     "build": "deno bundle src/client/mod.jsx -o public/js/mod.js --minify",
-    "dev:server": "deno run -A --env-file=.env src/server/mod.js",
-    "dev": "deno task build && deno task dev:server"
+    "tailwind": "tailwindcss -i ./src/client/tailwind.css -o ./public/css/tailwind.css",
+    "server": "deno run -A --env-file=.env src/server/mod.js",
+    "dev": "deno task build && deno task tailwind && deno task server"
   }
 }
