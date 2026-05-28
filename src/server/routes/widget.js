@@ -3,42 +3,39 @@ import { streamSSE } from "@hono/hono/streaming";
 import state from "../state.js";
 import { html } from "../layout.js";
 
+
+
 const streams = new Set();
 
-setInterval(() => {
-  state.mockCounter++;
+export async function notify () {
 
-  if (state.enabled) {
-    const payload = JSON.stringify({ counter: state.mockCounter });
+	const data = JSON.stringify({ stats: state.stats });
 
     for (const stream of streams) {
-      stream.writeSSE({ data: payload });
+      await stream.writeSSE({ data });
     }
-  }
-}, 1000);
 
-const app = new Hono().basePath("/widget");
+}
 
-app.use("/:wid", async (c, next) => {
-  if (c.req.param("wid") !== state.widgetId) {
-    return c.notFound();
-  }
-  await next();
-});
 
-app.get(
-  "/:wid",
+
+
+export const app = new Hono()
+
+.basePath("/widget")
+
+.get(
+  "/",
   (c) =>
     c.html(
       html({
         page: "widget",
-        mockCounter: state.mockCounter,
-        widgetId: state.widgetId,
+        stats: state.stats,
       }),
     ),
-);
+)
 
-app.get("/:wid/sse", (c) => {
+.get("/sse", (c) => {
   return streamSSE(c, async (s) => {
     streams.add(s);
 
@@ -47,5 +44,3 @@ app.get("/:wid/sse", (c) => {
     return new Promise(() => {});
   });
 });
-
-export { app };

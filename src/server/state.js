@@ -1,6 +1,8 @@
 export default {
-  enabled: false,
-  widgetId: "123",
-  lastGameId: 123,
-  mockCounter: 0,
+  watch: false,
+  timerId: 0,
+  autoOffId: 0,
+  offset: 0,
+  lastGameId: 0,
+  stats: [],
 };
