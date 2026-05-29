@@ -1,7 +1,11 @@
 import { getGames } from "@/server/chess-api.js";
 import { store } from "@/server/app-store.js";
-import { autoOff, interval } from '@/consts.js';
-import { env } from '@/server/env.js';
+import { autoOff, interval } from "@/consts.js";
+import { env } from "@/server/env.js";
+
+export async function toggleBonus() {
+  store.bonus.value = !store.bonus.value;
+}
 
 export async function setGidByOffset(off) {
   const games = await getGames();
@@ -31,21 +35,23 @@ export async function calcStats() {
 export async function toggleWatchMode() {
   store.watch = !store.watch;
 
-  if (store.watch) {
-    await calcStats();
-
-    (async function loop() {
-      store.timerId = setTimeout(async () => {
-        if (store.watch) {
-          await calcStats();
-          await loop();
-        }
-      }, interval);
-    })();
-
-    store.autoOffId = setTimeout(()=>store.watch=false, autoOff);
-  } else {
+  if (!store.watch) {
     clearTimeout(store.timerId);
     clearTimeout(store.autoOffId);
+    return store.autoOffStart = 0;
   }
+
+  store.autoOffId = setTimeout(() => store.watch = false, autoOff);
+  store.autoOffStart = Date.now();
+
+  (async function loop() {
+    store.timerId = setTimeout(async () => {
+      if (store.watch) {
+        await calcStats();
+        await loop();
+      }
+    }, interval);
+  })();
+
+  await calcStats();
 }

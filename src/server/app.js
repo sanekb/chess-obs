@@ -7,16 +7,17 @@ import { store } from "@/server/app-store.js";
 import {
   calcStats,
   setGidByOffset,
+  toggleBonus,
   toggleWatchMode,
 } from "@/server/app-logic.js";
-import { effect, untracked } from '@preact/signals-core';
+import { effect, untracked } from "@preact/signals-core";
 
 const json = (obj) => JSON.stringify(obj);
 const html = (page, state) => `
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Chess OBS</title>
+        <title>chess-obs</title>
   		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="/app.css">
     </head>
@@ -55,6 +56,9 @@ const dashboard = new Hono()
     c.html(
       html("dashboard", store.clientify()),
     ))
+  .post("/bonus", async (c) => {
+    await toggleBonus();
+  })
   .post("/offset/:off", async (c) => {
     await setGidByOffset(parseInt(c.req.param("off")));
   })
@@ -78,7 +82,7 @@ const widget = new Hono()
     return streamSSE(c, async (s) => {
       store.streams.add(s);
       s.onAbort(() => {
-      	store.streams.delete(s);
+        store.streams.delete(s);
       });
       return new Promise(() => {});
     });
@@ -94,9 +98,10 @@ app.route("/", widget);
 
 setGidByOffset(0);
 
-effect(()=>{
-	store.stats.value;
-	pushEvent(untracked(() => store.clientify()))
-})
+effect(() => {
+  store.stats.value;
+  store.bonus.value;
+  pushEvent(untracked(() => store.clientify()));
+});
 
 Deno.serve({ port: 8000 }, app.fetch);

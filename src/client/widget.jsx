@@ -1,42 +1,8 @@
-import { useEffect, useMemo } from "preact/hooks";
-import { useSignal } from "@preact/signals";
+import { useWidget } from "@/client/useWidget.js";
 import { pricePerWin } from "@/consts.js";
 
-function prepareForGrid(stats) {
-  const tours = [];
-
-  for (let i = 1; i <= 6; i++) {
-    tours.push({ i: i + 0, r: stats[i + 0 - 1] ?? "*" });
-    tours.push({ i: i + 6, r: stats[i + 6 - 1] ?? "*" });
-  }
-  tours.pop();
-
-  return {
-    tours,
-    price: tours.reduce(
-      (p, t) => p + (t.r !== "*" ? t.r * pricePerWin : 0),
-      0,
-    ),
-  };
-}
-
 export default function Widget({ state }) {
-  // const gg = useMemo(() => prepareForGrid([]), []);
-  const gridContent = useSignal(prepareForGrid([]));
-
-  useEffect(() => {
-    const eventSource = new EventSource(`/widget/sse`);
-
-    eventSource.onmessage = (event) => {
-      const { stats } = JSON.parse(event.data);
-      gridContent.value = prepareForGrid(stats);
-    };
-
-    return () => {
-      eventSource.close();
-    };
-  }, []);
-
+  const { gridContent, isApplyBonus } = useWidget(state);
   const { tours, price } = gridContent.value;
 
   return (
@@ -49,7 +15,7 @@ export default function Widget({ state }) {
         )}
       </div>
       <div class="col-span-2 text-accent text-3xl font-black">
-        Приз: {price} р
+        Приз: {price + (isApplyBonus.value ? 10e3 : 0)} р
       </div>
     </div>
   );
