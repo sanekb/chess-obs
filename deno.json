@@ -4,6 +4,7 @@
     "@/": "./src/",
     "@hono/hono": "jsr:@hono/hono@^4.12.23",
     "@preact/signals": "npm:@preact/signals@^2.9.1",
+    "@preact/signals-core": "npm:@preact/signals-core@^1.14.2",
     "clsx": "npm:clsx@^2.1.1",
     "preact": "npm:preact@^10.29.2"
   },

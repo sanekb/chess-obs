@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from "preact/hooks";
 import { useSignal } from "@preact/signals";
-import { pricePerWin } from "../consts.js";
+import { pricePerWin } from "@/consts.js";
 
-function hop(stats) {
+function prepareForGrid(stats) {
   const tours = [];
 
   for (let i = 1; i <= 6; i++) {
@@ -21,22 +21,23 @@ function hop(stats) {
 }
 
 export default function Widget({ state }) {
-  const gg = useMemo(() => hop([]), []);
-  const ggwp = useSignal(gg);
+  // const gg = useMemo(() => prepareForGrid([]), []);
+  const gridContent = useSignal(prepareForGrid([]));
 
   useEffect(() => {
     const eventSource = new EventSource(`/widget/sse`);
 
     eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      const stats = data.stats;
-      const _ggwp = hop(stats);
+      const { stats } = JSON.parse(event.data);
+      gridContent.value = prepareForGrid(stats);
+    };
 
-      ggwp.value = _ggwp;
+    return () => {
+      eventSource.close();
     };
   }, []);
 
-  const { tours, price } = ggwp.value;
+  const { tours, price } = gridContent.value;
 
   return (
     <div class="flex flex-col gap-y-4 p-6 font-sans uppercase">

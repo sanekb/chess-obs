@@ -4,7 +4,12 @@ import { basicAuth } from "@hono/hono/basic-auth";
 import { streamSSE } from "@hono/hono/streaming";
 import { env } from "@/server/env.js";
 import { store } from "@/server/app-store.js";
-import { offset, refresh, watch } from "@/server/app-logic.js";
+import {
+  calcStats,
+  setGidByOffset,
+  toggleWatchMode,
+} from "@/server/app-logic.js";
+import { effect, untracked } from '@preact/signals-core';
 
 const json = (obj) => JSON.stringify(obj);
 const html = (page, state) => `
@@ -24,6 +29,12 @@ const html = (page, state) => `
     </html>
   `;
 
+const pushEvent = async (data) => {
+  for (const stream of store.streams) {
+    await stream.writeSSE({ data: json(data) });
+  }
+};
+
 const dashboard = new Hono()
   .basePath("/dashboard")
   .use(
@@ -38,20 +49,20 @@ const dashboard = new Hono()
       return await next();
     }
     await next();
-    return c.json(store);
+    return c.json(store.clientify());
   })
   .get("/", (c) =>
     c.html(
-      html("dashboard", store),
+      html("dashboard", store.clientify()),
     ))
   .post("/offset/:off", async (c) => {
-    await offset(parseInt(c.req.param("off")));
-  })
-  .post("/watch", async (c) => {
-    await watch();
+    await setGidByOffset(parseInt(c.req.param("off")));
   })
   .post("/refresh", async (c) => {
-    await refresh();
+    await calcStats();
+  })
+  .post("/watch", async (c) => {
+    await toggleWatchMode();
   });
 
 const widget = new Hono()
@@ -60,13 +71,15 @@ const widget = new Hono()
     "/",
     (c) =>
       c.html(
-        html("widget", store),
+        html("widget", store.clientify()),
       ),
   )
   .get("/sse", (c) => {
     return streamSSE(c, async (s) => {
       store.streams.add(s);
-      s.onAbort(() => store.streams.delete(s));
+      s.onAbort(() => {
+      	store.streams.delete(s);
+      });
       return new Promise(() => {});
     });
   });
@@ -78,5 +91,12 @@ app.use("*", serveStatic({ root: "./public" }));
 app.get("/", (c) => c.redirect("/dashboard"));
 app.route("/", dashboard);
 app.route("/", widget);
+
+setGidByOffset(0);
+
+effect(()=>{
+	store.stats.value;
+	pushEvent(untracked(() => store.clientify()))
+})
 
 Deno.serve({ port: 8000 }, app.fetch);

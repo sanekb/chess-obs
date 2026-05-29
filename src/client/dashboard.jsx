@@ -10,40 +10,42 @@ import { Footer } from "@/client/footer.jsx";
 import { autoOff, debounce } from "@/consts.js";
 
 export default function Dashboard({ state }) {
-  const watch = useSignal(state.watch ?? false);
-  const lastGameId = useSignal(state.lastGameId ?? 0);
   const member = state.member;
-  const refresh = useSignal(false);
-  const refreshTimer = useSignal(0);
+
+  const isWatching = useSignal(state.watch);
+  const lastGameId = useSignal(state.lastGameId);
+
+  const isRefreshing = useSignal(false);
+  const refreshingTimeoutId = useSignal(0);
 
   const client = hc("/dashboard");
 
-  async function _offset(off) {
-    const res = await client.offset[":off"].$post({
+  async function changeOffset(off) {
+    const store = await client.offset[":off"].$post({
       param: { off: String(off) },
-    });
-    const json = await res.json();
+    }).then((r) => r.json());
 
-    lastGameId.value = json.lastGameId;
+    lastGameId.value = store.lastGameId;
   }
 
-  async function _watch() {
-    const res = await client.watch.$post();
-    const json = await res.json();
+  async function manualRefresh() {
+    const store = await client.refresh.$post().then((r) => r.json());
 
-    watch.value = json.watch;
+    clearTimeout(refreshingTimeoutId.value);
 
-    if (watch.value) setTimeout(() => watch.value = false, autoOff);
+    isRefreshing.value = true;
+    refreshingTimeoutId.value = setTimeout(
+      () => isRefreshing.value = false,
+      debounce,
+    );
   }
 
-  async function _refresh() {
-    const res = await client.refresh.$post();
-    const json = await res.json();
+  async function toogleWatchMode() {
+    const store = await client.watch.$post().then((r) => r.json());
 
-    clearTimeout(refreshTimer.value);
+    isWatching.value = store.watch;
 
-    refresh.value = json.refresh;
-    refreshTimer.value = setTimeout(() => refresh.value = false, debounce);
+    if (isWatching.value) setTimeout(() => isWatching.value = false, autoOff);
   }
 
   return (
@@ -55,19 +57,21 @@ export default function Dashboard({ state }) {
         <Controls>
           <Control>
             <div class="flex items-center gap-1">
-              <Button onclick={() => _offset(-1)}>&lt;</Button>
-              <Button onclick={() => _offset(0)}>0</Button>
-              <Button onclick={() => _offset(1)}>&gt;</Button>
+              <Button onclick={() => changeOffset(-1)}>&lt;</Button>
+              <Button onclick={() => changeOffset(0)}>0</Button>
+              <Button onclick={() => changeOffset(1)}>&gt;</Button>
             </div>
             <Span>{lastGameId.value}</Span>
           </Control>
           <Control>
-            <Button onclick={_refresh}>Обновить</Button>
-            <Span>{refresh.value ? "обновлено!" : "\u00A0"}</Span>
+            <Button onclick={manualRefresh}>Обновить</Button>
+            <Span>{isRefreshing.value ? "обновлено!" : "\u00A0"}</Span>
           </Control>
           <Control>
-            <Button onclick={_watch} active={watch.value}>Авто</Button>
-            <Span>{watch.value ? "работает" : "выключено"}</Span>
+            <Button onclick={toogleWatchMode} active={isWatching.value}>
+              Авто
+            </Button>
+            <Span>{isWatching.value ? "работает" : "выключено"}</Span>
           </Control>
         </Controls>
         <Preview src="/widget" />

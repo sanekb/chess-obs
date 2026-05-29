@@ -1,8 +1,10 @@
-import { getGamesViaApi } from "@/server/chess-api.js";
-import { store } from "@/sever/app-store.js";
+import { getGames } from "@/server/chess-api.js";
+import { store } from "@/server/app-store.js";
+import { autoOff, interval } from '@/consts.js';
+import { env } from '@/server/env.js';
 
-export async function offset(off) {
-  const games = (await getGamesViaApi()).data;
+export async function setGidByOffset(off) {
+  const games = await getGames();
 
   if (off === 0) store.offset = off;
   if (off !== 0) store.offset += off;
@@ -10,49 +12,40 @@ export async function offset(off) {
   store.offset = Math.max(0, store.offset);
   store.lastGameId = games[store.offset].id;
 
-  await refresh();
+  await calcStats();
 }
 
-export async function refresh() {
-  const games = (await getGamesViaApi()).data;
+export async function calcStats() {
+  const games = await getGames();
   const i = games.findIndex((g) => g.id === store.lastGameId);
   const stats = games.slice(0, i).reverse().map((g) => {
     if (g.user1Result === 0.5) return 0.5;
     if (g.user1.username === env.member) return g.user1Result;
     if (g.user2.username === env.member) return g.user2Result;
-
     return -1;
   });
 
-  store.stats = stats;
-
-  await writeSSE();
+  store.stats.value = stats;
 }
 
-export async function watch() {
+export async function toggleWatchMode() {
   store.watch = !store.watch;
 
   if (store.watch) {
-    await refresh();
+    await calcStats();
 
     (async function loop() {
       store.timerId = setTimeout(async () => {
         if (store.watch) {
-          await refresh();
+          await calcStats();
           await loop();
         }
       }, interval);
     })();
 
-    store.autoOffId = setTimeout(watch, autoOff);
+    store.autoOffId = setTimeout(()=>store.watch=false, autoOff);
   } else {
     clearTimeout(store.timerId);
     clearTimeout(store.autoOffId);
-  }
-}
-
-async function writeSSE() {
-  for (const stream of store.streams) {
-    await stream.writeSSE({ data: JSON.stringify(store) });
   }
 }
