@@ -1,8 +1,11 @@
-import { env } from "./env.js";
-import { throttleTtl } from "../../consts.js";
+import { env } from "@/server/env.js";
+import { throttleTtl } from "@/consts.js";
 
 const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
 const cache = { json: mock, time: Infinity };
+
+const endpoint = (m) =>
+  `https://www.chess.com/callback/games/extended-archive?locale=en&username=${m}&page=1`;
 
 export async function getGamesViaApi() {
   if (performance.now() - cache.time < throttleTtl) return cache.json;
@@ -12,21 +15,18 @@ export async function getGamesViaApi() {
   };
 
   try {
-    const response = await fetch(
-      `https://www.chess.com/callback/games/extended-archive?locale=en&username=${env.member}&page=1`,
-      { headers },
-    );
+    const res = await fetch(endpoint(env.member), { headers });
 
-    if (!response.ok) {
-      throw new Error(`Ошибка HTTP: ${response.status} ${response.statusText}`);
+    if (!res.ok) {
+      throw new Error(`Ошибка HTTP: ${res.status} ${res.statusText}`);
     }
 
-    const contentType = response.headers.get("content-type");
+    const contentType = res.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
       throw new TypeError("Сервер вернул не JSON формат!");
     }
 
-    const json = await response.json();
+    const json = await res.json();
 
     // if (
     //   !json || typeof json !== "object" || !("@id" in json) ||

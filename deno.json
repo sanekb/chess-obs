@@ -1,20 +1,20 @@
 {
   "lock": false,
   "imports": {
+    "@/": "./src/",
     "@hono/hono": "jsr:@hono/hono@^4.12.23",
     "@preact/signals": "npm:@preact/signals@^2.9.1",
     "clsx": "npm:clsx@^2.1.1",
-    "preact": "npm:preact@^10.29.2",
-    "repomix": "npm:repomix@^1.14.1"
+    "preact": "npm:preact@^10.29.2"
   },
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
   "tasks": {
-    "build": "deno bundle src/client/mod.jsx -o public/js/mod.js --minify",
-    "tailwind": "tailwindcss -i ./src/client/tailwind.css -o ./public/css/tailwind.css",
-    "server": "deno run -A --env-file=.env src/server/mod.js",
+    "build": "deno bundle src/client/app.jsx -o public/app.js --minify",
+    "tailwind": "tailwindcss -i ./src/client/app.css -o ./public/app.css",
+    "server": "deno run -A --env-file=.env src/server/app.js",
     "dev": "deno task build && deno task tailwind && deno task server"
   }
 }

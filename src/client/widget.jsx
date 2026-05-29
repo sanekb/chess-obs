@@ -1,21 +1,20 @@
 import { useEffect, useMemo } from "preact/hooks";
 import { useSignal } from "@preact/signals";
-import { clsx } from "clsx";
 import { pricePerWin } from "../consts.js";
 
 function hop(stats) {
   const tours = [];
 
   for (let i = 1; i <= 6; i++) {
-    tours.push({ i: i + 0, r: stats[i + 0 - 1] ?? '*' });
-    tours.push({ i: i + 6, r: stats[i + 6 - 1] ?? '*' });
+    tours.push({ i: i + 0, r: stats[i + 0 - 1] ?? "*" });
+    tours.push({ i: i + 6, r: stats[i + 6 - 1] ?? "*" });
   }
   tours.pop();
 
   return {
     tours,
     price: tours.reduce(
-      (p, t) => p + (t.r !== '*' ? t.r * pricePerWin : 0),
+      (p, t) => p + (t.r !== "*" ? t.r * pricePerWin : 0),
       0,
     ),
   };
@@ -43,7 +42,7 @@ export default function Widget({ state }) {
     <div class="flex flex-col gap-y-4 p-6 font-sans uppercase">
       <div class="grid grid-cols-2 gap-x-8 gap-y-1 text-lg text-milk font-semibold">
         {tours.map((t) =>
-          t.r === '*'
+          t.r === "*"
             ? <div>{t.i} тур - *, 0р</div>
             : <div>{t.i} тур - {t.r}, {t.r * pricePerWin}р</div>
         )}

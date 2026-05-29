@@ -1,16 +1,13 @@
 import { useSignal } from "@preact/signals";
 import { hc } from "@hono/hono/client";
-import {
-  Background,
-  Button,
-  Control,
-  Controls,
-  Footer,
-  Header,
-  Iframe,
-  Span,
-} from "./db_components.jsx";
-import { autoOff, debounce } from "../consts.js";
+
+import { Background } from "@/client/background.jsx";
+import { Header } from "@/client/header.jsx";
+import { Button, Control, Controls, Span } from "@/client/controls.jsx";
+import { Preview } from "@/client/preview.jsx";
+import { Footer } from "@/client/footer.jsx";
+
+import { autoOff, debounce } from "@/consts.js";
 
 export default function Dashboard({ state }) {
   const watch = useSignal(state.watch ?? false);
@@ -73,7 +70,7 @@ export default function Dashboard({ state }) {
             <Span>{watch.value ? "работает" : "выключено"}</Span>
           </Control>
         </Controls>
-        <Iframe src="/widget" />
+        <Preview src="/widget" />
         <Footer />
       </div>
     </div>
