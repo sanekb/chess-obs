@@ -3,55 +3,66 @@ import { store } from "@/server/app-store.js";
 import { autoOff, interval } from "@/consts.js";
 import { env } from "@/server/env.js";
 
-export async function toggleBonus() {
-  store.bonus.value = !store.bonus.value;
-}
 
-export async function setGidByOffset(off) {
+export async function setLgidByOffset(off) {
   const games = await getGames();
 
-  if (off === 0) store.offset = off;
-  if (off !== 0) store.offset += off;
+  if (off === 0) store.gameOffset = off;
+  if (off !== 0) store.gameOffset += off;
 
-  store.offset = Math.max(0, store.offset);
-  store.lastGameId = games[store.offset].id;
+  store.gameOffset = Math.max(0, store.gameOffset);
+  store.lastGameId = games[store.gameOffset].id;
 
-  await calcStats();
+  await updateResults();
 }
 
-export async function calcStats() {
+export async function updateResults() {
+	const { gamesResults, lastGameId } = store;
+
   const games = await getGames();
-  const i = games.findIndex((g) => g.id === store.lastGameId);
-  const stats = games.slice(0, i).reverse().map((g) => {
-    if (g.user1Result === 0.5) return 0.5;
-    if (g.user1.username === env.member) return g.user1Result;
-    if (g.user2.username === env.member) return g.user2Result;
-    return -1;
+  const i = games.findIndex((g) => g.id === lastGameId);
+  const results = games.slice(0, i).reverse().map((g) => {
+  	return g.user1.username === env.playerName ? g.user1Result : g.user2Result;
+    // if (g.user1Result === 0.5) return 0.5;
+    // if (g.user1.username === env.playerName) return g.user1Result;
+    // if (g.user2.username === env.playerName) return g.user2Result;
+    // return -1;
   });
 
-  store.stats.value = stats;
+  gamesResults.value = results;
 }
 
 export async function toggleWatchMode() {
-  store.watch = !store.watch;
+  const { isWatchModeEnabled } = store;
+  isWatchModeEnabled.value = !isWatchModeEnabled.value;
 
-  if (!store.watch) {
-    clearTimeout(store.timerId);
-    clearTimeout(store.autoOffId);
-    return store.autoOffStart = 0;
+  if (!isWatchModeEnabled.value) {
+    clearTimeout(store.watchModeLoopTid);
+    clearTimeout(store.watchModeAutoOffTid);
   }
 
-  store.autoOffId = setTimeout(() => store.watch = false, autoOff);
-  store.autoOffStart = Date.now();
+  store.watchModeAutoOffTid = setTimeout(() => isWatchModeEnabled.value = false, autoOff);
+  // store.autoOffStart = Date.now();
 
   (async function loop() {
-    store.timerId = setTimeout(async () => {
-      if (store.watch) {
-        await calcStats();
+    store.watchModeLoopTid = setTimeout(async () => {
+      if (isWatchModeEnabled.value) {
+        await updateResults();
         await loop();
       }
     }, interval);
   })();
 
-  await calcStats();
+  await updateResults();
+}
+
+
+export async function toggleBonus() {
+  const { isBonusEnabled } = store;
+  isBonusEnabled.value = !isBonusEnabled.value;
+}
+
+export async function togglePrize() {
+  const { isPrizeEnabled } = store;
+  isPrizeEnabled.value = !isPrizeEnabled.value;
 }

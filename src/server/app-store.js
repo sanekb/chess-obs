@@ -2,29 +2,31 @@ import { signal } from "@preact/signals-core";
 import { env } from "@/server/env.js";
 
 export const store = {
-  member: env.member,
 
-  lastGameId: 0,
-  offset: 0,
+  playerName: env.playerName,
 
-  watch: false,
-  timerId: 0,
-  autoOffId: 0,
-  autoOffStart: 0,
+  lastGameId: signal(0),
+  gameOffset: 0,
 
-  stats: signal([]),
-  streams: new Set(),
+  isWatchModeEnabled: signal(false),
+  watchModeLoopTid: 0,
+  watchModeAutoOffTid: 0,
 
-  bonus: signal(false),
+  gamesResults: signal([]),
+
+  isBonusEnabled: signal(false),
+  isPrizeEnabled: signal(true),
+
+  sseListeners: new Set(),
 
   clientify() {
     return {
-      member: this.member,
-      lastGameId: this.lastGameId,
-      autoOffStart: this.autoOffStart,
-      watch: this.watch,
-      stats: this.stats.value,
-      bonus: this.bonus.value,
+      playerName: this.playerName,
+      lastGameId: this.lastGameId.value,
+	  isWatchModeEnabled: this.isWatchModeEnabled.value,
+	  gamesResults: this.gamesResults.value,
+	  isBonusEnabled: this.isBonusEnabled.value,
+	  isPrizeEnabled: this.isPrizeEnabled.value,
     };
   },
 };

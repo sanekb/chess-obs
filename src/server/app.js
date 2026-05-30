@@ -5,12 +5,13 @@ import { streamSSE } from "@hono/hono/streaming";
 import { env } from "@/server/env.js";
 import { store } from "@/server/app-store.js";
 import {
-  calcStats,
-  setGidByOffset,
-  toggleBonus,
+  updateResults,
+  setLgidByOffset,
   toggleWatchMode,
+  toggleBonus,
+  togglePrize,
 } from "@/server/app-logic.js";
-import { effect, untracked } from "@preact/signals-core";
+import { effect } from "@preact/signals-core";
 
 const json = (obj) => JSON.stringify(obj);
 const html = (page, state) => `
@@ -30,11 +31,6 @@ const html = (page, state) => `
     </html>
   `;
 
-const pushEvent = async (data) => {
-  for (const stream of store.streams) {
-    await stream.writeSSE({ data: json(data) });
-  }
-};
 
 const dashboard = new Hono()
   .basePath("/dashboard")
@@ -50,23 +46,26 @@ const dashboard = new Hono()
       return await next();
     }
     await next();
-    return c.json(store.clientify());
+    return c.body(null, 204);
   })
   .get("/", (c) =>
     c.html(
       html("dashboard", store.clientify()),
     ))
-  .post("/bonus", async (c) => {
-    await toggleBonus();
-  })
   .post("/offset/:off", async (c) => {
-    await setGidByOffset(parseInt(c.req.param("off")));
+    await setLgidByOffset(parseInt(c.req.param("off")));
   })
   .post("/refresh", async (c) => {
-    await calcStats();
+    await updateResults();
   })
   .post("/watch", async (c) => {
     await toggleWatchMode();
+  })
+  .post("/bonus", async (c) => {
+    await toggleBonus();
+  })
+  .post("/prize", async (c) => {
+    await togglePrize();
   });
 
 const widget = new Hono()
@@ -77,31 +76,36 @@ const widget = new Hono()
       c.html(
         html("widget", store.clientify()),
       ),
-  )
+  );
+
+const app = new Hono()
+
+  .use("*", serveStatic({ root: "./public" }))
+
+  .get("/", (c) => c.redirect("/dashboard"))
+  .route("/", dashboard)
+  .route("/", widget)
+
   .get("/sse", (c) => {
     return streamSSE(c, async (s) => {
-      store.streams.add(s);
+      store.sseListeners.add(s);
       s.onAbort(() => {
-        store.streams.delete(s);
+        store.sseListeners.delete(s);
       });
       return new Promise(() => {});
     });
   });
 
-const app = new Hono();
 
-app.use("*", serveStatic({ root: "./public" }));
-
-app.get("/", (c) => c.redirect("/dashboard"));
-app.route("/", dashboard);
-app.route("/", widget);
-
-setGidByOffset(0);
+setLgidByOffset(0);
 
 effect(() => {
-  store.stats.value;
-  store.bonus.value;
-  pushEvent(untracked(() => store.clientify()));
+
+  const storeJson = json(store.clientify());
+
+  for (const stream of store.sseListeners) {
+    await sseListeners.writeSSE({ data: storeJson });
+  }
 });
 
 Deno.serve({ port: 8000 }, app.fetch);

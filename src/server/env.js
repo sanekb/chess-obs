@@ -2,6 +2,6 @@ export const env = {
   user: Deno.env.get("AUTH_USERNAME"),
   pass: Deno.env.get("AUTH_PASSWORD"),
 
-  member: Deno.env.get("MEMBER"),
+  playerName: Deno.env.get("PLAYER_NAME"),
   devEmail: Deno.env.get("DEV_EMAIL"),
 };

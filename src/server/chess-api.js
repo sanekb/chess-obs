@@ -15,7 +15,7 @@ export async function getGames() {
   };
 
   try {
-    const res = await fetch(endpoint(env.member), { headers });
+    const res = await fetch(endpoint(env.playerName), { headers });
 
     if (!res.ok) {
       throw new Error(`Ошибка HTTP: ${res.status} ${res.statusText}`);
@@ -41,7 +41,7 @@ export async function getGames() {
     return games;
   } catch (error) {
     console.error(
-      `Не удалось загрузить данные для ${env.member}:`,
+      `Не удалось загрузить данные для ${env.playerName}:`,
       error.message,
     );
     return mock;

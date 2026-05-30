@@ -1,6 +1,6 @@
 import { useEffect } from "preact/hooks";
 import { useSignal } from "@preact/signals";
-import { asJson, client } from "@/client/hc.js";
+import { asJson, api } from "@/client/app-api.js";
 import { autoOff, debounce } from "@/consts.js";
 
 export function useDashboard(state) {
@@ -69,7 +69,7 @@ export function useDashboard(state) {
   }
 
   return {
-    member: state.member,
+    playerName: state.playerName,
 
     lastGameId,
     isApplyBonus,

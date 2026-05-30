@@ -1,13 +1,13 @@
-import { Background } from "@/client/background.jsx";
-import { Header } from "@/client/header.jsx";
-import { Button, Control, Controls, Span } from "@/client/controls.jsx";
-import { Preview } from "@/client/preview.jsx";
-import { Footer } from "@/client/footer.jsx";
+import { Background } from "@/client/lib/background.jsx";
+import { Header } from "@/client/lib/header.jsx";
+import { Button, Control, Controls, Span } from "@/client/lib/controls.jsx";
+import { Preview } from "@/client/lib/preview.jsx";
+import { Footer } from "@/client/lib/footer.jsx";
 import { useDashboard } from "@/client/useDashboard.js";
 
-export default function Dashboard({ state }) {
+export default function Dashboard({ store }) {
   const {
-    member,
+    playerName,
 
     lastGameId,
     isApplyBonus,
@@ -18,14 +18,14 @@ export default function Dashboard({ state }) {
     changeOffset,
     manualRefresh,
     toggleWatchMode,
-  } = useDashboard(state);
+  } = useDashboard(store);
 
   return (
     <div class="relative min-h-screen bg-dark text-gray-200 flex flex-col items-center justify-start p-6 overflow-x-hidden font-sans">
       <Background />
 
       <div class="w-full max-w-2xl flex-1 flex flex-col items-center justify-start gap-12">
-        <Header member={member} />
+        <Header playerName={playerName} />
         <Controls>
           <Control>
             <Button onclick={toggleBonus} active={isApplyBonus.value}>
