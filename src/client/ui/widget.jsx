@@ -1,6 +1,8 @@
 import { useEffect } from "preact/hooks";
 import { store } from "@/client/app-store.js";
 import { PRIZE_FOR_TOP, PRIZE_PER_WIN } from "@/consts.js";
+import { Draw, Loss, Win } from "@/client/lib/icons.jsx";
+import { clsx } from "clsx";
 
 function prepareForGrid(gameResults) {
   const tours = [];
@@ -20,6 +22,13 @@ function prepareForGrid(gameResults) {
   };
 }
 
+const Icon = ({ r }) => {
+  if (r === 1) return <Win />;
+  if (r === 0.5) return <Draw />;
+  if (r === 0) return <Loss />;
+  return null;
+};
+
 export default function Widget({ state }) {
   useEffect(() => store.parse(state), []);
 
@@ -27,21 +36,27 @@ export default function Widget({ state }) {
   const { tours, prize } = prepareForGrid(gameResults.value);
 
   return (
-    <div class="flex flex-col gap-y-4 p-6 font-sans uppercase">
-      <div class="grid grid-cols-2 gap-x-8 gap-y-1 text-lg text-milk font-semibold">
-        {tours.map((t) =>
-          t.r === "*"
-            ? <div>{t.i} тур - *{isPrizeEnabled.value ? ", 0р" : ""}</div>
-            : (
-              <div>
-                {t.i} тур - {t.r}
+    <div class="flex flex-col gap-y-4 p-4 font-sans uppercase">
+      <div
+        class={clsx("grid grid-cols-2 gap-y-1 text-2xl text-milk font-bold", {
+          "gap-x-8": isPrizeEnabled.value,
+        })}
+      >
+        {tours.map((t) => (
+          <div class="flex items-center">
+            {t.i < 10 && <span class="text-transparent">1</span>}
+            {t.i} тур: {t.r === "*" && `*${isPrizeEnabled.value ? ", 0р" : ""}`}
+            {t.r !== "*" && (
+              <>
+                <Icon r={t.r} />
                 {isPrizeEnabled.value ? `, ${t.r * PRIZE_PER_WIN}р` : ""}
-              </div>
-            )
-        )}
+              </>
+            )}
+          </div>
+        ))}
       </div>
       {isPrizeEnabled.value && (
-        <div class="col-span-2 text-accent text-3xl font-black">
+        <div class="text-accent text-5xl font-black">
           Приз: {prize + (isBonusEnabled.value ? PRIZE_FOR_TOP : 0)} р
         </div>
       )}

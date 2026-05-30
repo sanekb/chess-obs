@@ -40,10 +40,10 @@ export default function Dashboard({ state }) {
   } = store;
 
   return (
-    <div class="relative min-h-screen bg-dark text-gray-200 flex flex-col items-center justify-start p-6 overflow-x-hidden font-sans">
+    <div class="text-sm relative min-h-screen bg-surface-100 text-gray-200 flex flex-col items-center justify-start p-6 overflow-x-hidden font-sans">
       <Background />
 
-      <div class="w-full max-w-2xl flex-1 flex flex-col items-center justify-start gap-12">
+      <div class="w-full flex-1 flex flex-col items-center justify-start gap-12">
         <Header playerName={playerName} />
         <Controls>
           <Control>

@@ -1,11 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --color-dark: #1e2942;
-  --color-dark-2: #161f30;
-  --color-grey: #2e3d5c;
-  --color-grey-2: #a3b8cc;
-  --color-grey-3: #52668d;
+  --color-surface-100: #1e2942;
+  --color-surface-200: #161f30;
+
+  --color-grey-100: #a3b8cc;
+  --color-grey-200: #52668d;
+  --color-grey-300: #2e3d5c;
+
   --color-accent: #ffa63b;
   --color-milk: #f1efed;
+
+  --color-icon-win: #81b64c;
+  --color-icon-draw: hsla(0, 0%, 100%, 0.5);
+  --color-icon-loss: #fa412d;
+}
+
+@layer components {
+  .icon {
+    @apply inline-grid w-6 h-6 ml-1.5 mt-[0.15rem] justify-center content-center;
+  }
+  .icon > svg {
+    @apply w-full h-full;
+  }
+  .icon path {
+    fill: currentColor;
+  }
 }

@@ -2,7 +2,7 @@ import { env } from "@/server/env.js";
 import { API_THROTTLE_TTL } from "@/consts.js";
 
 const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
-const cache = { games: [], time: Infinity };
+const cache = { games: mock.data, time: Infinity };
 const endpoint = (user) =>
   `https://www.chess.com/callback/games/extended-archive?locale=en&username=${user}&page=1`;
 
@@ -20,6 +20,7 @@ export async function getGames() {
     const games = json.data;
     cache.games = games;
     cache.time = performance.now();
+    console.log("successful api req.");
     return games;
   }).catch((err) => {
     console.error(
