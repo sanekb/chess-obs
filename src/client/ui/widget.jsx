@@ -1,6 +1,6 @@
 import { useEffect } from "preact/hooks";
 import { store } from "@/client/app-store.js";
-import { prizePerTop, prizePerWin } from "@/consts.js";
+import { PRIZE_FOR_TOP, PRIZE_PER_WIN } from "@/consts.js";
 
 function prepareForGrid(gameResults) {
   const tours = [];
@@ -14,7 +14,7 @@ function prepareForGrid(gameResults) {
   return {
     tours,
     prize: tours.reduce(
-      (p, t) => p + (t.r !== "*" ? t.r * prizePerWin : 0),
+      (p, t) => p + (t.r !== "*" ? t.r * PRIZE_PER_WIN : 0),
       0,
     ),
   };
@@ -35,14 +35,14 @@ export default function Widget({ state }) {
             : (
               <div>
                 {t.i} тур - {t.r}
-                {isPrizeEnabled.value ? `, ${t.r * prizePerWin}р` : ""}
+                {isPrizeEnabled.value ? `, ${t.r * PRIZE_PER_WIN}р` : ""}
               </div>
             )
         )}
       </div>
       {isPrizeEnabled.value && (
         <div class="col-span-2 text-accent text-3xl font-black">
-          Приз: {prize + (isBonusEnabled.value ? prizePerTop : 0)} р
+          Приз: {prize + (isBonusEnabled.value ? PRIZE_FOR_TOP : 0)} р
         </div>
       )}
     </div>

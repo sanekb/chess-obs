@@ -7,7 +7,7 @@ import { useEffect } from "preact/hooks";
 import { effect, signal } from "@preact/signals";
 import { store } from "@/client/app-store.js";
 import { api, asJson } from "@/client/app-api.js";
-import { debounce, prizePerTop } from "@/consts.js";
+import { PRIZE_FOR_TOP, TOOLTIP_DELAY } from "@/consts.js";
 
 const nbsp = { text: "\u00A0" };
 const refreshStatus = signal(nbsp);
@@ -17,7 +17,7 @@ const manualRefresh = () => {
 };
 effect(() => {
   if (refreshStatus.value !== nbsp) {
-    const timer = setTimeout(() => refreshStatus.value = nbsp, debounce);
+    const timer = setTimeout(() => refreshStatus.value = nbsp, TOOLTIP_DELAY);
     return () => clearTimeout(timer);
   }
 });
@@ -72,7 +72,7 @@ export default function Dashboard({ state }) {
               Бонус
             </Button>
             <Span>
-              {isBonusEnabled.value ? `+${prizePerTop / 1e3}к` : nbsp.text}
+              {isBonusEnabled.value ? `+${PRIZE_FOR_TOP / 1e3}к` : nbsp.text}
             </Span>
           </Control>
           <Control>

@@ -1,16 +1,13 @@
 import { getGames } from "@/server/chess-api.js";
 import { store } from "@/server/app-store.js";
-import { autoOff, interval } from "@/consts.js";
+import { WATCH_MODE_AUTO_OFF_TIME, WATCH_MODE_INTERVAL } from "@/consts.js";
 import { env } from "@/server/env.js";
 
 export async function setLgidByOffset(off) {
   const games = await getGames();
 
-  if (off === 0) store.gameOffset = off;
-  if (off !== 0) store.gameOffset += off;
-
-  store.gameOffset = Math.max(0, store.gameOffset);
-  store.lastGameId.value = games[store.gameOffset].id;
+  store.gameOffset = off === 0 ? 0 : Math.max(0, store.gameOffset + off);
+  store.lastGameId.value = games[store.gameOffset]?.id ?? 0;
 
   await updateResults();
 }
@@ -20,13 +17,9 @@ export async function updateResults() {
 
   const games = await getGames();
   const i = games.findIndex((g) => g.id === lastGameId.value);
-  const results = games.slice(0, i).reverse().map((g) => {
-    return g.user1.username === env.playerName ? g.user1Result : g.user2Result;
-    // if (g.user1Result === 0.5) return 0.5;
-    // if (g.user1.username === env.playerName) return g.user1Result;
-    // if (g.user2.username === env.playerName) return g.user2Result;
-    // return -1;
-  });
+  const results = games.slice(0, i).reverse().map((g) =>
+    g.user1.username === env.playerName ? g.user1Result : g.user2Result
+  );
 
   gameResults.value = results;
 }
@@ -42,9 +35,8 @@ export async function toggleWatchMode() {
 
   store.watchModeAutoOffTid = setTimeout(
     () => isWatchModeEnabled.value = false,
-    autoOff,
+    WATCH_MODE_AUTO_OFF_TIME,
   );
-  // store.autoOffStart = Date.now();
 
   (async function loop() {
     store.watchModeLoopTid = setTimeout(async () => {
@@ -52,7 +44,7 @@ export async function toggleWatchMode() {
         await updateResults();
         await loop();
       }
-    }, interval);
+    }, WATCH_MODE_INTERVAL);
   })();
 
   await updateResults();
