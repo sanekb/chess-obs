@@ -3,13 +3,13 @@ import dashboard from "@/client/ui/dashboard.jsx";
 import widget from "@/client/ui/widget.jsx";
 
 const pages = { dashboard, widget };
-const initState = JSON.parse(
-  document.querySelector("#initial-state")?.textContent ?? {},
+const initData = JSON.parse(
+  document.querySelector("#init-data")?.textContent ?? {},
 );
 
 function App() {
-  const Page = pages[initState.page];
-  return <Page state={initState.state} />;
+  const Page = pages[initData.page];
+  return <Page state={initData.state} />;
 }
 
 render(<App />, document.querySelector("body"));

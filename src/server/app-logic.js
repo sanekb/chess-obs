@@ -3,7 +3,6 @@ import { store } from "@/server/app-store.js";
 import { autoOff, interval } from "@/consts.js";
 import { env } from "@/server/env.js";
 
-
 export async function setLgidByOffset(off) {
   const games = await getGames();
 
@@ -11,25 +10,25 @@ export async function setLgidByOffset(off) {
   if (off !== 0) store.gameOffset += off;
 
   store.gameOffset = Math.max(0, store.gameOffset);
-  store.lastGameId = games[store.gameOffset].id;
+  store.lastGameId.value = games[store.gameOffset].id;
 
   await updateResults();
 }
 
 export async function updateResults() {
-	const { gamesResults, lastGameId } = store;
+  const { gameResults, lastGameId } = store;
 
   const games = await getGames();
-  const i = games.findIndex((g) => g.id === lastGameId);
+  const i = games.findIndex((g) => g.id === lastGameId.value);
   const results = games.slice(0, i).reverse().map((g) => {
-  	return g.user1.username === env.playerName ? g.user1Result : g.user2Result;
+    return g.user1.username === env.playerName ? g.user1Result : g.user2Result;
     // if (g.user1Result === 0.5) return 0.5;
     // if (g.user1.username === env.playerName) return g.user1Result;
     // if (g.user2.username === env.playerName) return g.user2Result;
     // return -1;
   });
 
-  gamesResults.value = results;
+  gameResults.value = results;
 }
 
 export async function toggleWatchMode() {
@@ -41,7 +40,10 @@ export async function toggleWatchMode() {
     clearTimeout(store.watchModeAutoOffTid);
   }
 
-  store.watchModeAutoOffTid = setTimeout(() => isWatchModeEnabled.value = false, autoOff);
+  store.watchModeAutoOffTid = setTimeout(
+    () => isWatchModeEnabled.value = false,
+    autoOff,
+  );
   // store.autoOffStart = Date.now();
 
   (async function loop() {
@@ -55,7 +57,6 @@ export async function toggleWatchMode() {
 
   await updateResults();
 }
-
 
 export async function toggleBonus() {
   const { isBonusEnabled } = store;

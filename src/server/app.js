@@ -5,11 +5,11 @@ import { streamSSE } from "@hono/hono/streaming";
 import { env } from "@/server/env.js";
 import { store } from "@/server/app-store.js";
 import {
-  updateResults,
   setLgidByOffset,
-  toggleWatchMode,
   toggleBonus,
   togglePrize,
+  toggleWatchMode,
+  updateResults,
 } from "@/server/app-logic.js";
 import { effect } from "@preact/signals-core";
 
@@ -23,14 +23,13 @@ const html = (page, state) => `
         <link rel="stylesheet" href="/app.css">
     </head>
     <body>
-        <script id="initial-state" type="application/json">
+        <script id="init-data" type="application/json">
             ${json({ page, state })}
         </script>
         <script type="module" src="/app.js"></script>
     </body>
     </html>
   `;
-
 
 const dashboard = new Hono()
   .basePath("/dashboard")
@@ -79,13 +78,10 @@ const widget = new Hono()
   );
 
 const app = new Hono()
-
   .use("*", serveStatic({ root: "./public" }))
-
   .get("/", (c) => c.redirect("/dashboard"))
   .route("/", dashboard)
   .route("/", widget)
-
   .get("/sse", (c) => {
     return streamSSE(c, async (s) => {
       store.sseListeners.add(s);
@@ -96,15 +92,13 @@ const app = new Hono()
     });
   });
 
-
 setLgidByOffset(0);
 
-effect(() => {
-
-  const storeJson = json(store.clientify());
+effect(async () => {
+  const state = json(store.clientify());
 
   for (const stream of store.sseListeners) {
-    await sseListeners.writeSSE({ data: storeJson });
+    await stream.writeSSE({ data: state });
   }
 });
 

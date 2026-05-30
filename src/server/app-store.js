@@ -2,7 +2,6 @@ import { signal } from "@preact/signals-core";
 import { env } from "@/server/env.js";
 
 export const store = {
-
   playerName: env.playerName,
 
   lastGameId: signal(0),
@@ -12,7 +11,7 @@ export const store = {
   watchModeLoopTid: 0,
   watchModeAutoOffTid: 0,
 
-  gamesResults: signal([]),
+  gameResults: signal([]),
 
   isBonusEnabled: signal(false),
   isPrizeEnabled: signal(true),
@@ -23,10 +22,10 @@ export const store = {
     return {
       playerName: this.playerName,
       lastGameId: this.lastGameId.value,
-	  isWatchModeEnabled: this.isWatchModeEnabled.value,
-	  gamesResults: this.gamesResults.value,
-	  isBonusEnabled: this.isBonusEnabled.value,
-	  isPrizeEnabled: this.isPrizeEnabled.value,
+      isWatchModeEnabled: this.isWatchModeEnabled.value,
+      gameResults: this.gameResults.value,
+      isBonusEnabled: this.isBonusEnabled.value,
+      isPrizeEnabled: this.isPrizeEnabled.value,
     };
   },
 };
