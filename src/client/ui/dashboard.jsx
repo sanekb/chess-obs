@@ -39,8 +39,8 @@ export default function Dashboard() {
   } = store;
 
   return (
-    <div class="text-sm relative min-h-screen bg-surface-100 text-gray-200 flex flex-col items-center justify-start p-6 overflow-x-hidden font-rubik">
-      <Background />
+    <div class="px-3 md:px-6 py-6 text-sm relative min-h-screen bg-surface-100 text-gray-200 flex flex-col items-center justify-start font-montserrat">
+      {/*<Background />*/}
 
       <div class="w-full flex-1 flex flex-col items-center justify-start gap-12">
         <Header playerName={playerName} />
@@ -67,18 +67,18 @@ export default function Dashboard() {
         <Preview src="/widget" />
         <Controls>
           <Control>
-            <Button onclick={toggleBonus} active={isBonusEnabled.value}>
-              Бонус
-            </Button>
-            <Span>
-              {isBonusEnabled.value ? `+${PRIZE_FOR_TOP / 1e3}к` : nbsp.text}
-            </Span>
-          </Control>
-          <Control>
             <Button onclick={togglePrize} active={isPrizeEnabled.value}>
               Призовые
             </Button>
             <Span>{isPrizeEnabled.value ? "видны" : "скрыты"}</Span>
+          </Control>
+          <Control>
+            <Button onclick={toggleBonus} active={isBonusEnabled.value}>
+              Бонус за топ-30
+            </Button>
+            <Span>
+              {isBonusEnabled.value ? `+${PRIZE_FOR_TOP / 1e3}к` : "нет"}
+            </Span>
           </Control>
         </Controls>
         <Footer />

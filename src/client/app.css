@@ -15,10 +15,11 @@
   --color-icon-draw: hsla(0, 0%, 100%, 0.5);
   --color-icon-loss: #fa412d;
 
-  --font-rubik: "Montserrat", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
 
   --breakpoint-sm: 420px;
   --breakpoint-md: 480px;
+  --breakpoint-lg: 640px;
 }
 
 @layer components {

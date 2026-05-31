@@ -1,6 +1,6 @@
 export function Background() {
   return (
-    <aside class="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-50">
+    <aside class="absolute inset-0 pointer-events-none z-0 opacity-50">
       <div class="absolute top-10 left-10 grid grid-cols-4 gap-2 text-grey-200 opacity-75 text-xl">
         {[...Array(16)].map((_, i) => <span key={i}>•</span>)}
       </div>
