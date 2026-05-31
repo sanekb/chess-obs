@@ -1,4 +1,3 @@
-import { useEffect } from "preact/hooks";
 import { store } from "@/client/app-store.js";
 import { PRIZE_FOR_TOP, PRIZE_PER_WIN } from "@/consts.js";
 import { Draw, Loss, Win } from "@/client/lib/icons.jsx";
@@ -29,9 +28,7 @@ const Icon = ({ r }) => {
   return null;
 };
 
-export default function Widget({ state }) {
-  useEffect(() => store.parse(state), []);
-
+export default function Widget() {
   const { isBonusEnabled, isPrizeEnabled, gameResults } = store;
   const { tours, prize } = prepareForGrid(gameResults.value);
 

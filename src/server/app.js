@@ -6,13 +6,14 @@ import { streamSSE } from "@hono/hono/streaming";
 import { env } from "@/server/env.js";
 import { store } from "@/server/app-store.js";
 import {
-  setLgidByOffset,
+  changeGameOffset,
   toggleBonus,
   togglePrize,
   toggleWatchMode,
   updateResults,
 } from "@/server/app-logic.js";
 import { effect } from "@preact/signals-core";
+import { getCachedGames, getGames } from "@/server/chess-api.js";
 
 const json = (obj) => JSON.stringify(obj);
 const html = (page, state) => `
@@ -57,13 +58,13 @@ const dashboard = new Hono()
       html("dashboard", store.clientify()),
     ))
   .post("/offset/:off", async (c) => {
-    await setLgidByOffset(parseInt(c.req.param("off")));
+    changeGameOffset(parseInt(c.req.param("off")), await getCachedGames());
   })
   .post("/refresh", async (c) => {
-    await updateResults();
+    updateResults(await getGames());
   })
   .post("/watch", async (c) => {
-    await toggleWatchMode();
+    toggleWatchMode(await getGames());
   })
   .post("/bonus", (c) => {
     toggleBonus();
@@ -97,13 +98,16 @@ const app = new Hono()
     });
   });
 
-setLgidByOffset(0);
+changeGameOffset(0, await getCachedGames());
 
 effect(() => {
   const state = json(store.clientify());
 
   for (const stream of store.sseListeners) {
-    stream.writeSSE({ data: state });
+    stream.writeSSE({ data: state }).catch((e) => {
+      store.sseListeners.delete(stream);
+      console.warn("Dead SSE listener remove");
+    });
   }
 });
 

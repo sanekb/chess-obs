@@ -3,7 +3,6 @@ import { Header } from "@/client/lib/header.jsx";
 import { Button, Control, Controls, Span } from "@/client/lib/controls.jsx";
 import { Preview } from "@/client/lib/preview.jsx";
 import { Footer } from "@/client/lib/footer.jsx";
-import { useEffect } from "preact/hooks";
 import { effect, signal } from "@preact/signals";
 import { store } from "@/client/app-store.js";
 import { PRIZE_FOR_TOP, TOOLTIP_DELAY } from "@/consts.js";
@@ -30,9 +29,7 @@ const toggleWatchMode = () => api.watch.$post();
 const toggleBonus = () => api.bonus.$post();
 const togglePrize = () => api.prize.$post();
 
-export default function Dashboard({ state }) {
-  useEffect(() => store.parse(state), []);
-
+export default function Dashboard() {
   const {
     playerName,
     lastGameId,
