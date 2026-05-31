@@ -2,8 +2,8 @@ import { env } from "@/server/env.js";
 import { API_THROTTLE_TTL } from "@/consts.js";
 import { list, num, obj, str } from "@oxi/schema";
 
-const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
-const cache = { games: mock.data, time: -Infinity };
+// const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
+
 const endpoint = (user) =>
   `https://www.chess.com/callback/games/extended-archive?locale=en&username=${user}&page=1`;
 
@@ -18,6 +18,8 @@ const gamesSchema = obj({
     }),
   ),
 });
+
+const cache = { games: [], time: -Infinity };
 
 export function getCachedGames() {
   return Promise.resolve(cache.games);
@@ -39,10 +41,10 @@ export function getGames() {
     const res = gamesSchema.parse(json);
 
     if (res.isErr()) throw new Error(`схема ответа не та`);
-
     const games = res.unwrap().data.toArray();
     cache.games = games;
     cache.time = performance.now();
+    console.log("chess-API", games.length);
 
     return games;
   }).catch((err) => {

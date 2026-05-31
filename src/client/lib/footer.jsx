@@ -5,7 +5,7 @@ export function Footer() {
       <p>
         исходный{" "}
         <a
-          class="underline font-mono cursor-pointer hover:text-grey-100"
+          class="underline transition-all duration-150 cursor-pointer hover:text-grey-100"
           href="https://github.com/sanekb/chess-obs"
         >
           код

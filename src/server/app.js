@@ -98,7 +98,7 @@ const app = new Hono()
     });
   });
 
-changeGameOffset(0, await getCachedGames());
+changeGameOffset(0, await getGames());
 
 effect(() => {
   const state = json(store.clientify());

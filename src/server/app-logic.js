@@ -4,7 +4,10 @@ import { env } from "@/server/env.js";
 import { getGames } from "@/server/chess-api.js";
 
 export function changeGameOffset(off, games) {
-  store.gameOffset = off === 0 ? 0 : Math.max(0, store.gameOffset + off);
+  store.gameOffset = Math.min(
+    off === 0 ? 0 : Math.max(0, store.gameOffset + off),
+    games.length - 1,
+  );
   store.lastGameId.value = games[store.gameOffset]?.id ?? 0;
 
   updateResults(games);
@@ -14,13 +17,13 @@ export function updateResults(games) {
   const { gameResults, lastGameId } = store;
 
   const i = games.findIndex((g) => g.id === lastGameId.value);
+  const o = Math.max(0, i);
 
-  store.gameOffset = i !== -1 ? i : 0;
-
-  const results = games.slice(0, store.gameOffset).reverse().map((g) =>
+  const results = games.slice(0, o).reverse().map((g) =>
     g.user1.username === env.playerName ? g.user1Result : g.user2Result
   );
 
+  store.gameOffset = o;
   gameResults.value = results;
 }
 

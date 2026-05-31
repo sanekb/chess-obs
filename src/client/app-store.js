@@ -43,6 +43,6 @@ let reconnectTimer = null;
     clearTimeout(reconnectTimer);
     reconnectTimer = setTimeout(() => {
       connectSSE();
-    }, delay * 1000);
+    }, delay);
   };
 })();
