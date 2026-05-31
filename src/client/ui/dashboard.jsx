@@ -47,9 +47,9 @@ export default function Dashboard() {
         <Controls>
           <Control>
             <div class="flex items-center gap-1">
-              <Button onclick={() => changeOffset(-1)}>&lt;</Button>
-              <Button onclick={() => changeOffset(0)}>0</Button>
-              <Button onclick={() => changeOffset(1)}>&gt;</Button>
+              <Button onclick={() => changeOffset(0)}>Последняя</Button>
+              <Button onclick={() => changeOffset(-1)}>⬆</Button>
+              <Button onclick={() => changeOffset(1)}>⬇</Button>
             </div>
             <Span>{lastGameId.value}</Span>
           </Control>
