@@ -10,12 +10,14 @@
   },
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "preact"
+    "jsxImportSource": "preact",
+    "checkJs": true,
+    "noImplicitAny": false
   },
   "tasks": {
     "build": "deno fmt && deno bundle src/client/app.jsx -o public/app.js --minify",
     "tailwind": "tailwindcss -i ./src/client/app.css -o ./public/app.css",
-    "server": "deno run -A --env-file=.env src/server/app.js",
-    "dev": "deno task build && deno task tailwind && deno task server"
+    "run": "deno run -A --env-file=.env src/server/app.js",
+    "dev": "deno task build && deno task tailwind && deno task run"
   }
 }

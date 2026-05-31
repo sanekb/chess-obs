@@ -4,7 +4,7 @@ import widget from "@/client/ui/widget.jsx";
 
 const pages = { dashboard, widget };
 const initData = JSON.parse(
-  document.querySelector("#init-data")?.textContent ?? {},
+  document.querySelector("#init-data")?.textContent ?? "{}",
 );
 
 function App() {

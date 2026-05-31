@@ -1,11 +1,11 @@
 export function Footer() {
   return (
     <footer class="text-center space-y-1 text-grey-200 mt-auto z-10">
-      <p class="cursor-default">Сделано специально для Матвея</p>
+      <p>Сделано специально для Матвея</p>
       <p>
         исходный{" "}
         <a
-          class="underline font-mono cursor-pointer"
+          class="underline font-mono cursor-pointer hover:text-grey-100"
           href="https://github.com/sanekb/chess-obs"
         >
           код

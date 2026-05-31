@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 
-export function Button({ onclick, active, children }) {
+export function Button({ onclick, active = false, children }) {
   const base =
     "px-2 h-8 flex items-center justify-center rounded-lg border-2 border-grey-200 text-milk font-semibold transition-all duration-200 hover:bg-grey-300 hover:border-blue-400 hover:scale-105 active:scale-95 cursor-pointer";
   const style = clsx(base, {
@@ -8,7 +8,7 @@ export function Button({ onclick, active, children }) {
   });
 
   return (
-    <button onclick={onclick} class={style}>
+    <button type="button" onclick={onclick} class={style}>
       {children}
     </button>
   );

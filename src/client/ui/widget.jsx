@@ -36,11 +36,14 @@ export default function Widget({ state }) {
   const { tours, prize } = prepareForGrid(gameResults.value);
 
   return (
-    <div class="flex flex-col gap-y-4 p-4 font-sans uppercase">
+    <div class="flex flex-col gap-y-4 p-4 uppercase">
       <div
-        class={clsx("grid grid-cols-2 gap-y-1 text-2xl text-milk font-bold", {
-          "gap-x-8": isPrizeEnabled.value,
-        })}
+        class={clsx(
+          "grid grid-cols-2 gap-y-1 text-lg sm:text-xl md:text-2xl font-sans text-milk font-bold",
+          {
+            "gap-x-8": isPrizeEnabled.value,
+          },
+        )}
       >
         {tours.map((t) => (
           <div class="flex items-center">
@@ -56,7 +59,7 @@ export default function Widget({ state }) {
         ))}
       </div>
       {isPrizeEnabled.value && (
-        <div class="text-accent text-5xl font-black">
+        <div class="text-accent text-3xl sm:text-4xl md:text-5xl font-rubik font-bold">
           Приз: {prize + (isBonusEnabled.value ? PRIZE_FOR_TOP : 0)} р
         </div>
       )}

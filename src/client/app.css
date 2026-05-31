@@ -14,6 +14,11 @@
   --color-icon-win: #81b64c;
   --color-icon-draw: hsla(0, 0%, 100%, 0.5);
   --color-icon-loss: #fa412d;
+
+  --font-rubik: "Montserrat", sans-serif;
+
+  --breakpoint-sm: 420px;
+  --breakpoint-md: 480px;
 }
 
 @layer components {

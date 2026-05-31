@@ -8,7 +8,7 @@ export function Header({ playerName }) {
         <p>
           • задаётся "последняя партия" из архива партий{" "}
           <a
-            class="text-blue-400 font-mono"
+            class="text-grey-100 hover:text-milk underline font-mono"
             href={`https://www.chess.com/member/${playerName.value.toLowerCase()}/games`}
           >
             {playerName.value}

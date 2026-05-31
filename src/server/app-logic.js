@@ -50,12 +50,12 @@ export async function toggleWatchMode() {
   await updateResults();
 }
 
-export async function toggleBonus() {
+export function toggleBonus() {
   const { isBonusEnabled } = store;
   isBonusEnabled.value = !isBonusEnabled.value;
 }
 
-export async function togglePrize() {
+export function togglePrize() {
   const { isPrizeEnabled } = store;
   isPrizeEnabled.value = !isPrizeEnabled.value;
 }

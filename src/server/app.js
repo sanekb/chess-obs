@@ -1,4 +1,5 @@
 import { Hono } from "@hono/hono";
+import { routePath } from "@hono/hono/route";
 import { serveStatic } from "@hono/hono/deno";
 import { basicAuth } from "@hono/hono/basic-auth";
 import { streamSSE } from "@hono/hono/streaming";
@@ -22,8 +23,11 @@ const html = (page, state) => `
   		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg">
         <link rel="stylesheet" href="/app.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     </head>
-    <body>
+    <body class="overflow-hidden">
         <script id="init-data" type="application/json">
             ${json({ page, state })}
         </script>
@@ -42,7 +46,7 @@ const dashboard = new Hono()
     }),
   )
   .use("*", async (c, next) => {
-    if (c.req.routePath === "/") {
+    if (routePath(c) === "/") {
       return await next();
     }
     await next();
@@ -61,11 +65,11 @@ const dashboard = new Hono()
   .post("/watch", async (c) => {
     await toggleWatchMode();
   })
-  .post("/bonus", async (c) => {
-    await toggleBonus();
+  .post("/bonus", (c) => {
+    toggleBonus();
   })
-  .post("/prize", async (c) => {
-    await togglePrize();
+  .post("/prize", (c) => {
+    togglePrize();
   });
 
 const widget = new Hono()
@@ -84,7 +88,7 @@ const app = new Hono()
   .route("/", dashboard)
   .route("/", widget)
   .get("/sse", (c) => {
-    return streamSSE(c, async (s) => {
+    return streamSSE(c, (s) => {
       store.sseListeners.add(s);
       s.onAbort(() => {
         store.sseListeners.delete(s);
@@ -95,11 +99,11 @@ const app = new Hono()
 
 setLgidByOffset(0);
 
-effect(async () => {
+effect(() => {
   const state = json(store.clientify());
 
   for (const stream of store.sseListeners) {
-    await stream.writeSSE({ data: state });
+    stream.writeSSE({ data: state });
   }
 });
 

@@ -6,8 +6,10 @@ import { Footer } from "@/client/lib/footer.jsx";
 import { useEffect } from "preact/hooks";
 import { effect, signal } from "@preact/signals";
 import { store } from "@/client/app-store.js";
-import { api, asJson } from "@/client/app-api.js";
 import { PRIZE_FOR_TOP, TOOLTIP_DELAY } from "@/consts.js";
+import { hc } from "@hono/hono/client";
+
+const api = hc("/dashboard");
 
 const nbsp = { text: "\u00A0" };
 const refreshStatus = signal(nbsp);
@@ -40,7 +42,7 @@ export default function Dashboard({ state }) {
   } = store;
 
   return (
-    <div class="text-sm relative min-h-screen bg-surface-100 text-gray-200 flex flex-col items-center justify-start p-6 overflow-x-hidden font-sans">
+    <div class="text-sm relative min-h-screen bg-surface-100 text-gray-200 flex flex-col items-center justify-start p-6 overflow-x-hidden font-rubik">
       <Background />
 
       <div class="w-full flex-1 flex flex-col items-center justify-start gap-12">

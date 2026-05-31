@@ -7,7 +7,9 @@ const endpoint = (user) =>
   `https://www.chess.com/callback/games/extended-archive?locale=en&username=${user}&page=1`;
 
 export async function getGames() {
-  if (performance.now() - cache.time < API_THROTTLE_TTL) return cache.games;
+  if (performance.now() - cache.time < API_THROTTLE_TTL) {
+    return Promise.resolve(cache.games);
+  }
 
   return fetch(endpoint(env.playerName), {
     headers: { "User-Agent": `chess-obs/0.1.0 (contact: ${env.devEmail})` },
@@ -27,6 +29,6 @@ export async function getGames() {
       `Не удалось загрузить данные для ${env.playerName}:`,
       err.message,
     );
-    return cache.games;
+    return Promise.resolve(cache.games);
   });
 }
