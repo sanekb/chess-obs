@@ -39,7 +39,7 @@ export default function Dashboard() {
   } = store;
 
   return (
-    <div class="px-3 md:px-6 py-6 text-sm relative min-h-screen bg-surface-100 text-gray-200 flex flex-col items-center justify-start font-montserrat">
+    <div class="px-2 md:px-6 py-6 text-sm relative min-h-screen bg-surface-100 text-gray-200 flex flex-col items-center justify-start font-montserrat">
       {/*<Background />*/}
 
       <div class="w-full flex-1 flex flex-col items-center justify-start gap-12">

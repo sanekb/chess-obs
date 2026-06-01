@@ -38,7 +38,7 @@ export default function Widget() {
         class={clsx(
           "grid grid-cols-2 gap-y-1 text-lg sm:text-xl md:text-2xl lg:text-3xl font-sans text-milk font-bold",
           {
-            "gap-x-8": isPrizeEnabled.value,
+            "gap-x-2 sm:gap-x-6 md:gap-x-8": isPrizeEnabled.value,
           },
         )}
       >
