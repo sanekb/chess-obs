@@ -1,7 +1,6 @@
 import { store } from "@/server/app-store.js";
 import { WATCH_MODE_AUTO_OFF_TIME, WATCH_MODE_INTERVAL } from "@/consts.js";
 import { env } from "@/server/env.js";
-import { getGames } from "@/server/chess-api.js";
 
 export function changeGameOffset(off, games) {
   store.gameOffset = Math.min(
@@ -27,7 +26,7 @@ export function updateResults(games) {
   gameResults.value = results;
 }
 
-export async function toggleWatchMode(games) {
+export async function toggleWatchMode(games, getGames) {
   const { isWatchModeEnabled } = store;
   isWatchModeEnabled.value = !isWatchModeEnabled.value;
 

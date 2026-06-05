@@ -64,7 +64,7 @@ const dashboard = new Hono()
     updateResults(await getGames());
   })
   .post("/watch", async (c) => {
-    toggleWatchMode(await getGames());
+    toggleWatchMode(await getGames(), getGames);
   })
   .post("/bonus", (c) => {
     toggleBonus();
