@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Montserrat";
+  src:
+    url("/montserrat-wght.woff2") format("woff2-variations"),
+    url("/montserrat-wght.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+
 @theme {
   --color-surface-100: #1e2942;
   --color-surface-200: #161f30;
