@@ -27,19 +27,32 @@
 
   --font-montserrat: "Montserrat", sans-serif;
 
-  --breakpoint-sm: 420px;
-  --breakpoint-md: 480px;
-  --breakpoint-lg: 640px;
+  --breakpoint-sm: 360px;
+  --breakpoint-md: 390px;
+  --breakpoint-lg: 412px;
+  --breakpoint-xl: 470px;
 }
 
 @layer components {
   .icon {
-    @apply inline-grid w-6 h-6 ml-1.5 mt-[0.15rem] justify-center content-center;
+    @apply inline-grid ml-1.5 mt-[0.15rem] justify-center content-center;
+    @apply w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6;
   }
   .icon > svg {
     @apply w-full h-full;
   }
   .icon path {
     fill: currentColor;
+  }
+  aside circle {
+    fill: currentColor;
+  }
+  aside rect.solid {
+    fill: var(--color-grey-300);
+    stroke: none;
+  }
+  aside rect.outlined {
+    fill: none;
+    stroke: var(--color-grey-200);
   }
 }

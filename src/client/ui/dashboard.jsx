@@ -7,7 +7,7 @@ import { effect, signal } from "@preact/signals";
 import { store } from "@/client/app-store.js";
 import { PRIZE_FOR_TOP, TOOLTIP_DELAY } from "@/consts.js";
 import { hc } from "@hono/hono/client";
-
+import { clsx } from "clsx";
 const api = hc("/dashboard");
 
 const nbsp = { text: "\u00A0" };
@@ -39,10 +39,15 @@ export default function Dashboard() {
   } = store;
 
   return (
-    <div class="px-2 md:px-6 py-6 text-sm relative min-h-screen bg-surface-100 text-gray-200 flex flex-col items-center justify-start font-montserrat">
-      {/*<Background />*/}
-
-      <div class="w-full flex-1 flex flex-col items-center justify-start gap-12">
+    <>
+      <Background />
+      <div
+        class={clsx(
+          "w-screen min-h-screen px-2 md:px-6 py-6",
+          "flex flex-col items-center justify-start gap-8 lg:gap-12",
+          "bg-surface-100 text-gray-200 text-sm font-montserrat",
+        )}
+      >
         <Header playerName={playerName} />
         <Controls>
           <Control>
@@ -53,16 +58,21 @@ export default function Dashboard() {
             </div>
             <Span>{lastGameId.value}</Span>
           </Control>
-          <Control>
-            <Button onclick={manualRefresh}>Обновить</Button>
-            <Span>{refreshStatus.value.text}</Span>
-          </Control>
-          <Control>
-            <Button onclick={toggleWatchMode} active={isWatchModeEnabled.value}>
-              Авто
-            </Button>
-            <Span>{isWatchModeEnabled.value ? "работает" : "выключено"}</Span>
-          </Control>
+          <div class="flex items-center justify-center gap-6">
+            <Control>
+              <Button onclick={manualRefresh}>Обновить</Button>
+              <Span>{refreshStatus.value.text}</Span>
+            </Control>
+            <Control>
+              <Button
+                onclick={toggleWatchMode}
+                active={isWatchModeEnabled.value}
+              >
+                Авто
+              </Button>
+              <Span>{isWatchModeEnabled.value ? "работает" : "выключено"}</Span>
+            </Control>
+          </div>
         </Controls>
         <Preview src="/widget" />
         <Controls>
@@ -83,6 +93,6 @@ export default function Dashboard() {
         </Controls>
         <Footer />
       </div>
-    </div>
+    </>
   );
 }

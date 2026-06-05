@@ -33,12 +33,14 @@ export default function Widget() {
   const { tours, prize } = prepareForGrid(gameResults.value);
 
   return (
-    <div class="p-2 sm:p-4 flex flex-col gap-y-4 uppercase">
+    <div class="p-2 sm:p-3 xl:p-4 flex flex-col gap-y-4 uppercase">
       <div
         class={clsx(
-          "grid grid-cols-2 gap-y-1 text-lg sm:text-xl md:text-2xl lg:text-3xl font-sans text-milk font-bold",
+          "grid grid-cols-2 font-sans text-milk font-bold",
+          "text-md sm:text-lg md:text-xl xl:text-2xl",
+          " gap-y-1 xl:gap-y-2",
           {
-            "gap-x-2 sm:gap-x-6 md:gap-x-8": isPrizeEnabled.value,
+            "gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-8": isPrizeEnabled.value,
           },
         )}
       >
@@ -56,7 +58,7 @@ export default function Widget() {
         ))}
       </div>
       {isPrizeEnabled.value && (
-        <div class="text-accent text-2xl sm:text-4xl md:text-5xl font-montserrat font-bold">
+        <div class="text-accent text-xl sm:text-2xl md:text-3xl xl:text-4xl font-montserrat font-bold">
           Приз: {prize + (isBonusEnabled.value ? PRIZE_FOR_TOP : 0)} р
         </div>
       )}

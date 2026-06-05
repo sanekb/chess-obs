@@ -1,22 +1,92 @@
-export function Background() {
+import { clsx } from "clsx";
+
+function Rhombus(props) {
   return (
-    <aside class="absolute inset-0 pointer-events-none z-0 opacity-50">
-      <div class="absolute top-10 left-10 grid grid-cols-4 gap-2 text-grey-200 opacity-75 text-xl">
-        {[...Array(16)].map((_, i) => <span key={i}>•</span>)}
-      </div>
-      <div class="absolute top-10 right-10 grid grid-cols-4 gap-2 text-grey-200 opacity-75 text-xl">
-        {[...Array(16)].map((_, i) => <span key={i}>•</span>)}
-      </div>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 -10 50 40"
+      class={clsx(props.class, "absolute")}
+    >
+      <rect
+        x="10"
+        y="0"
+        width="20"
+        height="20"
+        rx="4"
+        ry="4"
+        class="solid"
+        transform="rotate(45, 20, 10)"
+      />
+      <rect
+        x="18"
+        y="0"
+        width="20"
+        height="20"
+        rx="4"
+        ry="4"
+        class="outlined"
+        transform="rotate(45, 28, 10)"
+      />
+    </svg>
+  );
+}
 
-      <div class="absolute top-8 left-16 w-8 h-8 border border-grey-200 rotate-45 rounded-sm">
-      </div>
-      <div class="absolute bottom-24 right-12 w-10 h-10 border border-grey-200 rounded-md opacity-60">
-      </div>
+function Cube(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 -10 50 40"
+      class={clsx(props.class, "absolute")}
+    >
+      <rect x="10" y="0" width="20" height="20" rx="4" ry="4" class="solid" />
+      <rect
+        x="16"
+        y="-6"
+        width="20"
+        height="20"
+        rx="4"
+        ry="4"
+        class="outlined"
+      />
+    </svg>
+  );
+}
 
-      <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-grey-300 rounded-full filter blur-3xl opacity-30">
-      </div>
-      <div class="absolute -top-20 -right-20 w-64 h-64 bg-grey-300 rounded-full filter blur-3xl opacity-30">
-      </div>
+function Circles(props) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 110 110"
+      class={clsx(props.class, "w-24 h-24 absolute text-grey-200")}
+    >
+      <circle r="4" cx="10" cy="10" />
+      <circle r="4" cx="40" cy="10" />
+      <circle r="4" cx="70" cy="10" />
+      <circle r="4" cx="100" cy="10" />
+      <circle r="4" cx="10" cy="40" />
+      <circle r="4" cx="40" cy="40" />
+      <circle r="4" cx="70" cy="40" />
+      <circle r="4" cx="100" cy="40" />
+      <circle r="4" cx="10" cy="70" />
+      <circle r="4" cx="40" cy="70" />
+      <circle r="4" cx="70" cy="70" />
+      <circle r="4" cx="100" cy="70" />
+      <circle r="4" cx="10" cy="100" />
+      <circle r="4" cx="40" cy="100" />
+      <circle r="4" cx="70" cy="100" />
+      <circle r="4" cx="100" cy="100" />
+    </svg>
+  );
+}
+
+export function Background(props) {
+  return (
+    <aside class="fixed w-screen h-screen pointer-events-none z-0 opacity-25">
+      <Circles class="left-[75%] top-[5%]" />
+      <Circles class="left-[5%] top-[50%]" />
+      <Circles class="left-[50%] top-[90%]" />
+      <Cube class="left-[80%] top-[80%] w-20 h-20" />
+      <Rhombus class="left-[10%] top-[10%] w-26 h-26" />
     </aside>
   );
 }

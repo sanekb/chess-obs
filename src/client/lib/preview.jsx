@@ -6,7 +6,7 @@ export function Preview({ src }) {
         {new URL("/widget", location.origin).href}
       </div>
 
-      <div class="resize aspect-[3/2] rounded-lg border-1 border-grey-200 bg-surface-200 flex items-center justify-center relative ">
+      <div class="aspect-[490/355] rounded-lg border-1 border-grey-200 bg-surface-200 flex items-center justify-center relative ">
         <iframe src={src} class="w-full h-full" />
       </div>
     </div>

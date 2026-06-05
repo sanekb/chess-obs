@@ -1,10 +1,10 @@
 export function Header({ playerName }) {
   return (
     <header class="text-center space-y-3 z-10">
-      <div class="text-3xl font-bold tracking-wide text-milk">
+      <div class="text-2xl lg:text-3xl font-bold tracking-wide text-milk">
         chess-obs
       </div>
-      <div class="text-grey-100 leading-relaxed">
+      <div class="text-xs lg:text-sm text-grey-100 leading-relaxed">
         <p>
           • задаётся "последняя партия" из архива партий{" "}
           <a
