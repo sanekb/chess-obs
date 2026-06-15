@@ -1,0 +1,10 @@
+name: nether
+
+services:
+  chess-obs:
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    build: .
+    volumes:
+      - .env:/app/.env

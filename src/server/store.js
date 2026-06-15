@@ -1,4 +1,4 @@
-import { signal } from "@preact/signals-core";
+import { signal } from "preact-signals-core";
 import { env } from "@/server/env.js";
 
 export const store = {
@@ -15,8 +15,6 @@ export const store = {
 
   isBonusEnabled: signal(false),
   isPrizeEnabled: signal(true),
-
-  sseListeners: new Set(),
 
   clientify() {
     return {

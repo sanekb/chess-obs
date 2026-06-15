@@ -1,29 +1,14 @@
-import { signal } from "@preact/signals";
+import { hc } from "hono/client";
+import { store } from "@/client/store.js";
 import { RECONNECT_DELAYS } from "@/consts.js";
 
-export const store = {
-  playerName: signal(""),
-
-  lastGameId: signal(0),
-
-  isWatchModeEnabled: signal(false),
-  gameResults: signal([]),
-
-  isBonusEnabled: signal(false),
-  isPrizeEnabled: signal(true),
-
-  parse(state) {
-    for (const prop in state) {
-      this[prop].value = state[prop];
-    }
-  },
-};
+export const api = hc("/dashboard");
 
 let es = null;
 let attempt = 0;
 let reconnectTimer = null;
 
-(function connectSSE() {
+export function connectSSE() {
   if (es) es.close();
 
   es = new EventSource(`/sse`);
@@ -33,7 +18,6 @@ let reconnectTimer = null;
   es.onmessage = (event) => {
     store.parse(JSON.parse(event.data));
   };
-
   es.onerror = () => {
     es.close();
 
@@ -45,4 +29,4 @@ let reconnectTimer = null;
       connectSSE();
     }, delay);
   };
-})();
+}

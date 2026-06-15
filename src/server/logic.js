@@ -1,4 +1,4 @@
-import { store } from "@/server/app-store.js";
+import { store } from "@/server/store.js";
 import { WATCH_MODE_AUTO_OFF_TIME, WATCH_MODE_INTERVAL } from "@/consts.js";
 import { env } from "@/server/env.js";
 
@@ -26,7 +26,7 @@ export function updateResults(games) {
   gameResults.value = results;
 }
 
-export async function toggleWatchMode(games, getGames) {
+export async function toggleWatchMode(getGames) {
   const { isWatchModeEnabled } = store;
   isWatchModeEnabled.value = !isWatchModeEnabled.value;
 
@@ -35,7 +35,7 @@ export async function toggleWatchMode(games, getGames) {
 
   if (!isWatchModeEnabled.value) return;
 
-  updateResults(games);
+  updateResults(await getGames());
 
   (function loop() {
     store.watchModeLoopTid = setTimeout(async () => {

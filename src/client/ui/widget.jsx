@@ -1,6 +1,6 @@
-import { store } from "@/client/app-store.js";
+import { store } from "@/client/store.js";
 import { PRIZE_FOR_TOP, PRIZE_PER_WIN } from "@/consts.js";
-import { Draw, Loss, Win } from "@/client/lib/icons.jsx";
+import { Draw, Loss, Win } from "@/client/ui/icons.jsx";
 import { clsx } from "clsx";
 
 function prepareForGrid(gameResults) {

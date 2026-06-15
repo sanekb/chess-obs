@@ -1,33 +1,26 @@
-import { Background } from "@/client/lib/background.jsx";
-import { Header } from "@/client/lib/header.jsx";
-import { Button, Control, Controls, Span } from "@/client/lib/controls.jsx";
-import { Preview } from "@/client/lib/preview.jsx";
-import { Footer } from "@/client/lib/footer.jsx";
-import { effect, signal } from "@preact/signals";
-import { store } from "@/client/app-store.js";
+import { Background } from "@/client/ui/dashboard/background.jsx";
+import { Header } from "@/client/ui/dashboard/header.jsx";
+import {
+  Button,
+  Control,
+  Controls,
+  Span,
+} from "@/client/ui/dashboard/controls.jsx";
+import { Preview } from "@/client/ui/dashboard/preview.jsx";
+import { Footer } from "@/client/ui/dashboard/footer.jsx";
+import { useSignal, useSignalEffect } from "preact-signals";
+import { store } from "@/client/store.js";
 import { PRIZE_FOR_TOP, TOOLTIP_DELAY } from "@/consts.js";
-import { hc } from "@hono/hono/client";
 import { clsx } from "clsx";
-const api = hc("/dashboard");
+import {
+  changeOffset,
+  manualRefresh,
+  toggleBonus,
+  togglePrize,
+  toggleWatchMode,
+} from "@/client/logic.js";
 
 const nbsp = { text: "\u00A0" };
-const refreshStatus = signal(nbsp);
-const manualRefresh = () => {
-  api.refresh.$post();
-  refreshStatus.value = { text: "обновлено!" };
-};
-effect(() => {
-  if (refreshStatus.value !== nbsp) {
-    const timer = setTimeout(() => refreshStatus.value = nbsp, TOOLTIP_DELAY);
-    return () => clearTimeout(timer);
-  }
-});
-
-const changeOffset = (off) =>
-  api.offset[":off"].$post({ param: { off: String(off) } });
-const toggleWatchMode = () => api.watch.$post();
-const toggleBonus = () => api.bonus.$post();
-const togglePrize = () => api.prize.$post();
 
 export default function Dashboard() {
   const {
@@ -37,6 +30,14 @@ export default function Dashboard() {
     isBonusEnabled,
     isPrizeEnabled,
   } = store;
+
+  const refreshStatus = useSignal(nbsp);
+  useSignalEffect(() => {
+    if (refreshStatus.value !== nbsp) {
+      const timer = setTimeout(() => refreshStatus.value = nbsp, TOOLTIP_DELAY);
+      return () => clearTimeout(timer);
+    }
+  });
 
   return (
     <>
