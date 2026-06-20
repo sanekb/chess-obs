@@ -11,48 +11,59 @@
 }
 
 @theme {
-  --color-surface-100: #1e2942;
-  --color-surface-200: #161f30;
-
-  --color-grey-100: #a3b8cc;
-  --color-grey-200: #52668d;
-  --color-grey-300: #2e3d5c;
-
-  --color-accent: #ffa63b;
-  --color-milk: #f1efed;
-
-  --color-icon-win: #81b64c;
-  --color-icon-draw: hsla(0, 0%, 100%, 0.5);
-  --color-icon-loss: #fa412d;
-
-  --font-montserrat: "Montserrat", sans-serif;
-
   --breakpoint-sm: 360px;
   --breakpoint-md: 390px;
   --breakpoint-lg: 412px;
   --breakpoint-xl: 470px;
+
+  --color-primary: #f1efed;
+
+  --color-secondary-100: #a3b8cc;
+  --color-secondary-200: #52668d;
+  --color-secondary-300: #2e3d5c;
+
+  --color-surface-100: #1e2942;
+  --color-surface-200: #161f30;
+
+  --color-accent-orange: #ffa63b;
+  --color-accent-blue: #70baff;
+
+  --color-win: #81b64c;
+  --color-draw: hsla(0, 0%, 100%, 0.5);
+  --color-loss: #fa412d;
+
+  --font-montserrat: "Montserrat", sans-serif;
 }
 
 @layer components {
-  .icon {
-    @apply inline-grid ml-1.5 mt-[0.15rem] justify-center content-center;
-    @apply w-4 h-4 md:w-5 md:h-5 xl:w-6 xl:h-6;
-  }
-  .icon > svg {
-    @apply w-full h-full;
-  }
-  .icon path {
-    fill: currentColor;
-  }
   aside circle {
     fill: currentColor;
   }
   aside rect.solid {
-    fill: var(--color-grey-300);
+    fill: var(--color-secondary-300);
     stroke: none;
   }
   aside rect.outlined {
     fill: none;
-    stroke: var(--color-grey-200);
+    stroke: var(--color-secondary-200);
   }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0.33;
+    transform: scale(100%);
+  }
+  33% {
+    opacity: 1;
+    transform: scale(110%);
+  }
+  to {
+    opacity: 1;
+    transform: scale(100%);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
 }

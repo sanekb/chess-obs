@@ -27,8 +27,10 @@ export default function Dashboard() {
     playerName,
     lastGameId,
     isWatchModeEnabled,
+    watchModeAutoOff,
     isBonusEnabled,
     isPrizeEnabled,
+    gameResults,
   } = store;
 
   const refreshStatus = useSignal(nbsp);
@@ -46,7 +48,7 @@ export default function Dashboard() {
         class={clsx(
           "w-screen min-h-screen px-2 md:px-6 py-6",
           "flex flex-col items-center justify-start gap-8 lg:gap-12",
-          "bg-surface-100 text-gray-200 text-sm font-montserrat",
+          "bg-surface-100 text-secondary-200 text-sm font-montserrat",
         )}
       >
         <Header playerName={playerName} />
@@ -54,14 +56,21 @@ export default function Dashboard() {
           <Control>
             <div class="flex items-center gap-1">
               <Button onclick={() => changeOffset(0)}>Последняя</Button>
-              <Button onclick={() => changeOffset(-1)}>⬆</Button>
+              <Button
+                onclick={() => changeOffset(-1)}
+                disabled={gameResults.value.length === 0}
+              >
+                ⬆
+              </Button>
               <Button onclick={() => changeOffset(1)}>⬇</Button>
             </div>
             <Span>{lastGameId.value}</Span>
           </Control>
           <div class="flex items-center justify-center gap-6">
             <Control>
-              <Button onclick={manualRefresh}>Обновить</Button>
+              <Button onclick={() => manualRefresh(refreshStatus)}>
+                Обновить
+              </Button>
               <Span>{refreshStatus.value.text}</Span>
             </Control>
             <Control>
@@ -71,7 +80,12 @@ export default function Dashboard() {
               >
                 Авто
               </Button>
-              <Span>{isWatchModeEnabled.value ? "работает" : "выключено"}</Span>
+              <Span>
+                {isWatchModeEnabled.value
+                  ? new Date(watchModeAutoOff.value * 1e3).toTimeString()
+                    .substring(3, 8)
+                  : "выключено"}
+              </Span>
             </Control>
           </div>
         </Controls>

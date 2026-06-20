@@ -6,6 +6,8 @@ export const store = {
   lastGameId: signal(0),
 
   isWatchModeEnabled: signal(false),
+  watchModeAutoOff: signal(0),
+
   gameResults: signal([]),
 
   isBonusEnabled: signal(false),

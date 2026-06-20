@@ -1,6 +1,7 @@
 import { store } from "@/server/store.js";
-import { WATCH_MODE_AUTO_OFF_TIME, WATCH_MODE_INTERVAL } from "@/consts.js";
+import { WATCH_MODE_AUTO_OFF, WATCH_MODE_INTERVAL } from "@/consts.js";
 import { env } from "@/server/env.js";
+import { batch } from "preact-signals-core";
 
 export function changeGameOffset(off, games) {
   store.gameOffset = Math.min(
@@ -27,29 +28,30 @@ export function updateResults(games) {
 }
 
 export async function toggleWatchMode(getGames) {
-  const { isWatchModeEnabled } = store;
-  isWatchModeEnabled.value = !isWatchModeEnabled.value;
+  const { isWatchModeEnabled, watchModeAutoOff } = store;
 
-  clearTimeout(store.watchModeLoopTid);
-  clearTimeout(store.watchModeAutoOffTid);
+  isWatchModeEnabled.value = !isWatchModeEnabled.value;
 
   if (!isWatchModeEnabled.value) return;
 
+  watchModeAutoOff.value = WATCH_MODE_AUTO_OFF;
   updateResults(await getGames());
 
   (function loop() {
-    store.watchModeLoopTid = setTimeout(async () => {
-      if (isWatchModeEnabled.value) {
-        updateResults(await getGames());
-        loop();
-      }
+    setTimeout(async () => {
+      if (!isWatchModeEnabled.value) return;
+
+      const games = await getGames();
+      batch(() => {
+        updateResults(games);
+        if (--store.watchModeAutoOff.value > 0) {
+          loop();
+        } else {
+          isWatchModeEnabled.value = false;
+        }
+      });
     }, WATCH_MODE_INTERVAL);
   })();
-
-  store.watchModeAutoOffTid = setTimeout(
-    () => isWatchModeEnabled.value = false,
-    WATCH_MODE_AUTO_OFF_TIME,
-  );
 }
 
 export function toggleBonus() {

@@ -5,10 +5,16 @@ import { clsx } from "clsx";
 
 function prepareForGrid(gameResults) {
   const tours = [];
+  const push = (i) =>
+    tours.push({
+      i: i,
+      r: gameResults[i - 1] ?? "*",
+      l: i === gameResults.length,
+    });
 
   for (let i = 1; i <= 6; i++) {
-    tours.push({ i: i + 0, r: gameResults[i + 0 - 1] ?? "*" });
-    tours.push({ i: i + 6, r: gameResults[i + 6 - 1] ?? "*" });
+    push(i + 0);
+    push(i + 6);
   }
   tours.pop();
 
@@ -28,6 +34,28 @@ const Icon = ({ r }) => {
   return null;
 };
 
+const Res = ({ r, l, p }) => {
+  return r === "*"
+    ? <span class="ml-3">*{p.value ? ", 0р" : ""}</span>
+    : (
+      <span class={clsx("flex items-center ml-1.5", { "animate-fade-in": l })}>
+        <Icon r={r} />
+        <span>{p.value ? `, ${r * PRIZE_PER_WIN}р` : ""}</span>
+      </span>
+    );
+};
+
+const Tour = ({ t, p }) => {
+  return (
+    <div class="flex">
+      <span class="w-[calc(2.35lh)] md:w-[calc(2.4lh)] lg:w-[calc(2.45lh)] xl:w-[calc(2.5lh)] text-end shrink-0">
+        {t.i} тур:
+      </span>
+      <Res r={t.r} l={t.l} p={p} />
+    </div>
+  );
+};
+
 export default function Widget() {
   const { isBonusEnabled, isPrizeEnabled, gameResults } = store;
   const { tours, prize } = prepareForGrid(gameResults.value);
@@ -36,7 +64,7 @@ export default function Widget() {
     <div class="p-2 sm:p-3 xl:p-4 flex flex-col gap-y-4 uppercase">
       <div
         class={clsx(
-          "grid grid-cols-2 font-sans text-milk font-bold",
+          "grid grid-cols-2 text-primary font-semibold font-montserrat tracking-tighter",
           "text-md sm:text-lg md:text-xl xl:text-2xl",
           " gap-y-1 xl:gap-y-2",
           {
@@ -44,21 +72,10 @@ export default function Widget() {
           },
         )}
       >
-        {tours.map((t) => (
-          <div class="flex items-center">
-            {t.i < 10 && <span class="text-transparent">1</span>}
-            {t.i} тур: {t.r === "*" && `*${isPrizeEnabled.value ? ", 0р" : ""}`}
-            {t.r !== "*" && (
-              <>
-                <Icon r={t.r} />
-                {isPrizeEnabled.value ? `, ${t.r * PRIZE_PER_WIN}р` : ""}
-              </>
-            )}
-          </div>
-        ))}
+        {tours.map((t) => <Tour t={t} p={isPrizeEnabled} />)}
       </div>
       {isPrizeEnabled.value && (
-        <div class="text-accent text-xl sm:text-2xl md:text-3xl xl:text-4xl font-montserrat font-bold">
+        <div class="px-2 text-accent-orange text-xl sm:text-2xl md:text-3xl xl:text-4xl font-montserrat font-bold">
           Приз: {prize + (isBonusEnabled.value ? PRIZE_FOR_TOP : 0)} р
         </div>
       )}

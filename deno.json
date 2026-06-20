@@ -1,4 +1,7 @@
 {
+  "fmt": {
+    "newLineKind": "system"
+  },
   "lock": false,
   "imports": {
     "@/": "./src/",
@@ -17,9 +20,19 @@
     "noImplicitAny": false
   },
   "tasks": {
-    "build": "deno fmt && deno bundle src/client/app.jsx -o public/app.js --minify",
-    "tailwind": "tailwindcss -i ./src/client/app.css -o ./public/app.css",
-    "run": "deno run -A --env-file=.env src/server/app.js",
-    "dev": "deno task build && deno task tailwind && deno task run"
+    "fmt": "deno fmt",
+    "build:js": {
+      "command": "deno bundle src/client/app.jsx -o public/app.js --minify --platform browser",
+      "dependencies": ["fmt"]
+    },
+    "build:css": {
+      "command": "tailwindcss -i ./src/client/app.css -o ./public/app.css",
+      "dependencies": ["fmt"]
+    },
+    "dev": {
+      "command": "deno run -A --env-file=.env src/server/app.js",
+      "dependencies": ["build:js", "build:css"]
+    },
+    "run": "deno run -A --env-file=.env src/server/app.js"
   }
 }

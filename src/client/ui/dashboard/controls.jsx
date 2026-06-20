@@ -1,14 +1,24 @@
 import { clsx } from "clsx";
 
-export function Button({ onclick, active = false, children }) {
-  const base =
-    "px-2 h-8 flex items-center justify-center rounded-lg border-2 border-grey-200 text-milk font-semibold transition-all duration-150 hover:bg-grey-300 hover:border-blue-400 hover:scale-105 active:scale-95 cursor-pointer";
-  const style = clsx(base, {
-    "bg-grey-300": active,
-  });
+export function Button(
+  { onclick, active = false, disabled = false, children },
+) {
+  const style = clsx(
+    "px-2 h-8 flex items-center justify-center rounded-lg",
+    "transition-all duration-150",
+    "border-2 font-semibold",
+    {
+      "border-secondary-300 text-primary/75 cursor-default": disabled,
+
+      "border-secondary-200 text-primary cursor-pointer": !disabled,
+      "hover:bg-secondary-300 hover:border-accent-blue hover:scale-105 active:scale-99":
+        !disabled,
+      "bg-secondary-300": active,
+    },
+  );
 
   return (
-    <button type="button" onclick={onclick} class={style}>
+    <button type="button" onclick={!disabled && onclick} class={style}>
       {children}
     </button>
   );
@@ -16,7 +26,7 @@ export function Button({ onclick, active = false, children }) {
 
 export function Span({ children }) {
   return (
-    <span class="text-xs text-grey-200">
+    <span class="text-xs text-secondary-200">
       {children}
     </span>
   );

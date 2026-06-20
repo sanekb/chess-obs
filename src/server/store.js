@@ -8,8 +8,7 @@ export const store = {
   gameOffset: 0,
 
   isWatchModeEnabled: signal(false),
-  watchModeLoopTid: 0,
-  watchModeAutoOffTid: 0,
+  watchModeAutoOff: signal(0),
 
   gameResults: signal([]),
 
@@ -21,6 +20,7 @@ export const store = {
       playerName: this.playerName,
       lastGameId: this.lastGameId.value,
       isWatchModeEnabled: this.isWatchModeEnabled.value,
+      watchModeAutoOff: this.watchModeAutoOff.value,
       gameResults: this.gameResults.value,
       isBonusEnabled: this.isBonusEnabled.value,
       isPrizeEnabled: this.isPrizeEnabled.value,

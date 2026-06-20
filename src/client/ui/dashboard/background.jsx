@@ -57,7 +57,7 @@ function Circles(props) {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 110 110"
-      class={clsx(props.class, "w-24 h-24 absolute text-grey-200")}
+      class={clsx(props.class, "w-24 h-24 absolute text-secondary-200")}
     >
       <circle r="4" cx="10" cy="10" />
       <circle r="4" cx="40" cy="10" />

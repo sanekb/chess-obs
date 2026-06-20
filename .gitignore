@@ -1,3 +1,63 @@
-public/*.css
-public/*.js
-*.sublime-*
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+.yarn-integrity
+.pnp.*
+package-lock.json.bak
+
+# Deno
+.deno/
+deno.lock.bak
+
+# React
+build/
+.eslintcache
+coverage/
+
+# Sublime
+*.sublime-workspace
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+!.env.example
+*.pem
+*.key
+*.crt
+secrets.json
+
+# Logs / temp
+*.log
+logs/
+*.tmp
+tmp/
+*.bak
+*.swp
+*.cache
+
+# chess-obs
+
+*.sublime-project
+public/app.css
+public/app.js

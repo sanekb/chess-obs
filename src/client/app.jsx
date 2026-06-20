@@ -3,14 +3,20 @@ import dashboard from "@/client/ui/dashboard.jsx";
 import widget from "@/client/ui/widget.jsx";
 import { render } from "preact";
 import { connectSSE } from "@/client/api.js";
+import { TITLE } from "@/consts.js";
 
-const { page, state } = JSON.parse(
-  document.querySelector("#init-data").textContent,
-);
+(function init() {
+  document.title = TITLE +
+    (location.hostname === "localhost" ? " (localhost)" : "");
 
-store.parse(state);
+  const { page, state } = JSON.parse(
+    document.querySelector("#init-data").textContent,
+  );
 
-const Page = ({ dashboard, widget })[page];
-render(<Page />, document.body);
+  store.parse(state);
 
-connectSSE();
+  const Page = ({ dashboard, widget })[page];
+  render(<Page />, document.body);
+
+  connectSSE();
+})();

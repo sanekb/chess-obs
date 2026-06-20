@@ -1,14 +1,14 @@
 export function Header({ playerName }) {
   return (
     <header class="text-center space-y-3 z-10">
-      <div class="text-2xl lg:text-3xl font-bold tracking-wide text-milk">
+      <div class="text-2xl lg:text-3xl font-bold tracking-wide text-primary">
         chess-obs
       </div>
-      <div class="text-xs lg:text-sm text-grey-100 leading-relaxed">
+      <div class="text-xs lg:text-sm text-secondary-100 leading-relaxed">
         <p>
           • задаётся "последняя партия" из архива партий{" "}
           <a
-            class="text-grey-100 hover:text-milk underline transition-all duration-150"
+            class="text-secondary-100 hover:text-primary underline transition-all duration-150"
             href={`https://www.chess.com/member/${playerName.value.toLowerCase()}/games`}
           >
             {playerName.value}

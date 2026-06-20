@@ -19,7 +19,7 @@ const gamesSchema = obj({
   ),
 });
 
-const cache = { games: [], time: +Infinity };
+const cache = { games: [], time: -Infinity };
 
 export function getCachedGames() {
   return Promise.resolve(cache.games);

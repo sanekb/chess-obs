@@ -16,76 +16,33 @@ import {
 import { getCachedGames, getGames } from "@/server/chess-api.js";
 import { render } from "preact-render-to-string";
 import { batch } from "preact-signals-core";
+import { TAG, TITLE } from "@/consts.js";
 
-const TAG = "INIT_DATA";
+const Layout = () => (
+  <html>
+    <head>
+      <title>{TITLE}</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      <link
+        rel="preload"
+        href="/montserrat-wght.woff2"
+        as="font"
+        type="font/woff2"
+        crossorigin
+      />
+      <link rel="stylesheet" href="/app.css" />
+      <script type="module" src="/app.js"></script>
+      <script type="application/json" id="init-data">{TAG}</script>
+    </head>
+  </html>
+);
 
 const SSR = (page, state) => {
   const init = JSON.stringify({ page, state });
-  const html = render(
-    <html>
-      <head>
-        <title>chess-obs</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link
-          rel="preload"
-          href="/montserrat-wght.woff2"
-          as="font"
-          type="font/woff2"
-          crossorigin
-        />
-        <link rel="stylesheet" href="/app.css" />
-        <script type="module" src="/app.js"></script>
-        <script type="application/json" id="init-data">{TAG}</script>
-      </head>
-    </html>,
-  );
+  const html = render(<Layout />);
   return `<!DOCTYPE html>${html.replace(TAG, init)}`;
 };
-
-const dashboard = new Hono()
-  .basePath("/dashboard")
-  .use(
-    basicAuth({
-      username: env.user,
-      password: env.pass,
-    }),
-  )
-  .use("*", async (c, next) => {
-    const isRoot = c.req.path.substring(basePath(c).length) === "";
-    if (isRoot) {
-      return await next();
-    }
-    await next();
-    return c.body(null, 204);
-  })
-  .get("/", (c) => {
-    return c.html(SSR("dashboard", store.clientify()));
-  })
-  .post("/offset/:off", async (c) => {
-    const games = await getCachedGames();
-    batch(() => changeGameOffset(parseInt(c.req.param("off")), games));
-  })
-  .post("/refresh", async (c) => {
-    const games = await getGames();
-    batch(() => updateResults(games));
-  })
-  .post("/watch", async (c) => {
-    batch(() => toggleWatchMode(getGames));
-  })
-  .post("/bonus", (c) => {
-    batch(() => toggleBonus());
-  })
-  .post("/prize", (c) => {
-    batch(() => togglePrize());
-  });
-
-const widget = new Hono()
-  .basePath("/widget")
-  .get(
-    "/",
-    (c) => c.html(SSR("widget", store.clientify())),
-  );
 
 export const sseManager = {
   streams: new Set(),
@@ -104,6 +61,57 @@ export const sseManager = {
     );
   },
 };
+
+const dashboard = new Hono()
+  .basePath("/dashboard")
+  .use(
+    basicAuth({
+      username: env.playerName,
+      password: env.playerPassword,
+      onAuthSuccess: (c, user) => c.set("user", user),
+    }, {
+      username: env.devEmail,
+      password: env.devPassword,
+    }),
+  )
+  .use("*", async (c, next) => {
+    const isRoot = c.req.path.substring(basePath(c).length) === "";
+    if (isRoot) {
+      return await next();
+    }
+    await next();
+    return c.body(null, 204);
+  })
+  .get("/", (c) => {
+    console.log(c.get("user"));
+    return c.html(SSR("dashboard", store.clientify()));
+  })
+  .post("/offset/:off", async (c) => {
+    const games = await getCachedGames();
+    batch(() => changeGameOffset(parseInt(c.req.param("off")), games));
+  })
+  .post("/refresh", async (c) => {
+    const games = await getGames();
+    batch(() => updateResults(games));
+    // await new Promise((r) => setTimeout(r, 1e3));
+    // return c.body("gg", 500);
+  })
+  .post("/watch", async (c) => {
+    batch(() => toggleWatchMode(getGames));
+  })
+  .post("/bonus", (c) => {
+    batch(() => toggleBonus());
+  })
+  .post("/prize", (c) => {
+    batch(() => togglePrize());
+  });
+
+const widget = new Hono()
+  .basePath("/widget")
+  .get(
+    "/",
+    (c) => c.html(SSR("widget", store.clientify())),
+  );
 
 export const app = new Hono()
   .use(trimTrailingSlash())
