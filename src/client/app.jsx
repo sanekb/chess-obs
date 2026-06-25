@@ -5,18 +5,16 @@ import { render } from "preact";
 import { connectSSE } from "@/client/api.js";
 import { TITLE } from "@/consts.js";
 
-(function init() {
-  document.title = TITLE +
-    (location.hostname === "localhost" ? " (localhost)" : "");
+document.title = TITLE +
+  (location.hostname === "localhost" ? " (localhost)" : "");
 
-  const { page, state } = JSON.parse(
-    document.querySelector("#init-data").textContent,
-  );
+const { page, state } = JSON.parse(
+  document.querySelector("#init-data").textContent,
+);
 
-  store.parse(state);
+store.parse(state);
 
-  const Page = ({ dashboard, widget })[page];
-  render(<Page />, document.body);
+const Page = ({ dashboard, widget })[page];
+render(<Page />, document.body);
 
-  connectSSE();
-})();
+connectSSE();
