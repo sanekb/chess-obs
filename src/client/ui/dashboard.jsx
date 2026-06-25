@@ -66,7 +66,7 @@ export default function Dashboard() {
             </div>
             <Span>{lastGameId.value}</Span>
           </Control>
-          <div class="flex items-center justify-center gap-6">
+          <div class="flex items-center justify-center gap-4 xl:gap-6">
             <Control>
               <Button onclick={() => manualRefresh(refreshStatus)}>
                 Обновить
@@ -102,7 +102,7 @@ export default function Dashboard() {
               Бонус за топ-30
             </Button>
             <Span>
-              {isBonusEnabled.value ? `+${PRIZE_FOR_TOP / 1e3}к` : "нет"}
+              {isBonusEnabled.value ? `+${PRIZE_FOR_TOP}₽` : "нет"}
             </Span>
           </Control>
         </Controls>

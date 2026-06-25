@@ -38,7 +38,7 @@ export function Control({ children }) {
 
 export function Controls({ children }) {
   return (
-    <div class="flex flex-wrap items-center justify-center gap-6 z-10 select-none">
+    <div class="flex flex-wrap items-center justify-center gap-4 xl:gap-6 z-10 select-none">
       {children}
     </div>
   );
