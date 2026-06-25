@@ -29,26 +29,30 @@ export function updateResults(games) {
 
 export async function toggleWatchMode(getGames) {
   const { isWatchModeEnabled, watchModeAutoOff } = store;
-
   isWatchModeEnabled.value = !isWatchModeEnabled.value;
 
-  if (!isWatchModeEnabled.value) return;
+  if (!isWatchModeEnabled.value) {
+    watchModeAutoOff.value = 0;
+    clearTimeout(store.watchModeLoopTid);
+    return;
+  }
 
-  watchModeAutoOff.value = WATCH_MODE_AUTO_OFF;
   updateResults(await getGames());
+  watchModeAutoOff.value = WATCH_MODE_AUTO_OFF;
 
   (function loop() {
-    setTimeout(async () => {
-      if (!isWatchModeEnabled.value) return;
-
+    store.watchModeLoopTid = setTimeout(async () => {
       const games = await getGames();
       batch(() => {
         updateResults(games);
-        if (--store.watchModeAutoOff.value > 0) {
-          loop();
-        } else {
+        watchModeAutoOff.value--;
+
+        if (watchModeAutoOff.value <= 0) {
           isWatchModeEnabled.value = false;
+          return;
         }
+
+        loop();
       });
     }, WATCH_MODE_INTERVAL);
   })();

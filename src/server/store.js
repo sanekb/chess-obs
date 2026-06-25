@@ -9,6 +9,7 @@ export const store = {
 
   isWatchModeEnabled: signal(false),
   watchModeAutoOff: signal(0),
+  watchModeLoopTid: null,
 
   gameResults: signal([]),
 
