@@ -1,5 +1,9 @@
 import { store } from "@/server/store.js";
-import { WATCH_MODE_AUTO_OFF, WATCH_MODE_INTERVAL } from "@/consts.js";
+import {
+  GM_SCORE,
+  WATCH_MODE_AUTO_OFF,
+  WATCH_MODE_INTERVAL,
+} from "@/consts.js";
 import { env } from "@/server/env.js";
 import { batch } from "preact-signals-core";
 
@@ -20,7 +24,9 @@ export function updateResults(games) {
   const o = Math.max(0, i);
 
   const results = games.slice(0, o).reverse().map((g) =>
-    g.user1.username === env.playerName ? g.user1Result : g.user2Result
+    g.user1.username === env.playerName
+      ? [g.user1Result, g.user2Rating >= GM_SCORE]
+      : [g.user2Result, g.user1Rating >= GM_SCORE]
   );
 
   store.gameOffset = o;

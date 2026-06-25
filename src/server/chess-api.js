@@ -11,6 +11,8 @@ const gamesSchema = obj({
   data: list(
     obj({
       id: num(),
+      user1Rating: num(),
+      user2Rating: num(),
       user1Result: num(),
       user2Result: num(),
       user1: obj({ username: str() }),

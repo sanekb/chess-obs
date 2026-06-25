@@ -1,16 +1,22 @@
 import { store } from "@/client/store.js";
-import { PRIZE_FOR_TOP, PRIZE_PER_WIN } from "@/consts.js";
+import { PRIZE_FOR_GMs, PRIZE_FOR_TOP, PRIZE_PER_WIN } from "@/consts.js";
 import { Draw, Loss, Win } from "@/client/ui/icons.jsx";
-import { clsx } from "clsx";
+import { cn } from "@/utils.js";
+
+const prize = (g) => g ? PRIZE_FOR_GMs : PRIZE_PER_WIN;
 
 function prepareForGrid(gameResults) {
+  const last = gameResults.length;
   const tours = [];
-  const push = (i) =>
+  const push = (i) => {
+    const [r, g] = gameResults[i - 1] ?? ["*", false];
     tours.push({
-      i: i,
-      r: gameResults[i - 1] ?? "*",
-      l: i === gameResults.length,
+      i,
+      r,
+      g,
+      l: i === last,
     });
+  };
 
   for (let i = 1; i <= 6; i++) {
     push(i + 0);
@@ -21,26 +27,28 @@ function prepareForGrid(gameResults) {
   return {
     tours,
     prize: tours.reduce(
-      (p, t) => p + (t.r !== "*" ? t.r * PRIZE_PER_WIN : 0),
+      (p, t) => p + (t.r !== "*" ? t.r * prize(t.g) : 0),
       0,
     ),
   };
 }
 
-const Icon = ({ r }) => {
-  if (r === 1) return <Win />;
-  if (r === 0.5) return <Draw />;
-  if (r === 0) return <Loss />;
+const Icon = ({ t }) => {
+  if (t.r === 1) return <Win />;
+  if (t.r === 0.5) return <Draw />;
+  if (t.r === 0) return <Loss />;
   return null;
 };
 
-const Res = ({ r, l, p }) => {
-  return r === "*"
+const Res = ({ t, p }) => {
+  return t.r === "*"
     ? <span class="ml-3">*{p.value ? ", 0₽" : ""}</span>
     : (
-      <span class={clsx("flex items-center ml-1.5", { "animate-fade-in": l })}>
-        <Icon r={r} />
-        <span>{p.value ? `, ${r * PRIZE_PER_WIN}₽` : ""}</span>
+      <span
+        class={cn("flex items-center ml-1.5", { "animate-fade-in": t.l })}
+      >
+        <Icon t={t} />
+        <span>{p.value ? `, ${t.r * prize(t.g)}₽` : ""}</span>
       </span>
     );
 };
@@ -51,7 +59,7 @@ const Tour = ({ t, p }) => {
       <span class="w-[calc(2.35lh)] md:w-[calc(2.4lh)] lg:w-[calc(2.45lh)] xl:w-[calc(2.5lh)] text-end shrink-0">
         {t.i} тур:
       </span>
-      <Res r={t.r} l={t.l} p={p} />
+      <Res t={t} p={p} />
     </div>
   );
 };
