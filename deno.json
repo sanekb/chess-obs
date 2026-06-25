@@ -7,11 +7,12 @@
     "@/": "./src/",
     "@oxi/schema": "jsr:@oxi/schema@^0.3.0",
     "clsx": "npm:clsx@^2.1.1",
-    "hono": "jsr:@hono/hono@^4.12.23",
+    "hono": "jsr:@hono/hono@^4.12.27",
     "preact": "npm:preact@^10.29.2",
     "preact-render-to-string": "npm:preact-render-to-string@^6.7.0",
-    "preact-signals": "npm:@preact/signals@^2.9.1",
-    "preact-signals-core": "npm:@preact/signals-core@^1.14.2"
+    "preact-signals": "npm:@preact/signals@^2.9.2",
+    "preact-signals-core": "npm:@preact/signals-core@^1.14.3",
+    "tailwind-merge": "npm:tailwind-merge@^3.6.0"
   },
   "compilerOptions": {
     "jsx": "react-jsx",
