@@ -11,7 +11,6 @@ import { Footer } from "@/client/ui/dashboard/footer.jsx";
 import { useSignal, useSignalEffect } from "preact-signals";
 import { store } from "@/client/store.js";
 import { PRIZE_FOR_TOP, TOOLTIP_DELAY } from "@/consts.js";
-import { clsx } from "clsx";
 import {
   changeOffset,
   manualRefresh,
@@ -19,6 +18,7 @@ import {
   togglePrize,
   toggleWatchMode,
 } from "@/client/logic.js";
+import { cn } from "@/utils.js";
 
 const nbsp = { text: "\u00A0" };
 
@@ -45,8 +45,8 @@ export default function Dashboard() {
     <>
       <Background />
       <div
-        class={clsx(
-          "w-screen min-h-dvh px-2 md:px-6 py-6",
+        class={cn(
+          "w-screen min-h-dvh px-2 md:px-4 py-6",
           "flex flex-col items-center justify-start gap-8 lg:gap-12",
           "bg-surface-100 text-secondary-200 text-sm font-montserrat",
         )}

@@ -63,7 +63,7 @@ export default function Widget() {
   return (
     <div class="p-2 sm:p-3 xl:p-4 flex flex-col gap-y-4 uppercase">
       <div
-        class={clsx(
+        class={cn(
           "grid grid-cols-2 text-primary font-semibold font-montserrat tracking-tighter",
           "text-md sm:text-lg md:text-xl xl:text-2xl",
           " gap-y-1 xl:gap-y-2",

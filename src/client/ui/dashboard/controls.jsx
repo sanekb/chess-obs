@@ -1,9 +1,9 @@
-import { clsx } from "clsx";
+import { cn } from "@/utils.js";
 
 export function Button(
   { onclick, active = false, disabled = false, children },
 ) {
-  const style = clsx(
+  const style = cn(
     "px-2 h-8 flex items-center justify-center rounded-lg",
     "transition-all duration-150",
     "bg-surface-100 border-2 font-semibold",
