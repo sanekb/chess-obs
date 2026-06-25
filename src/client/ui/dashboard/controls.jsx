@@ -6,7 +6,7 @@ export function Button(
   const style = clsx(
     "px-2 h-8 flex items-center justify-center rounded-lg",
     "transition-all duration-150",
-    "border-2 font-semibold",
+    "bg-surface-100 border-2 font-semibold",
     {
       "border-secondary-300 text-primary/75 cursor-default": disabled,
 

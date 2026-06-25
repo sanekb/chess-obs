@@ -36,11 +36,11 @@ const Icon = ({ r }) => {
 
 const Res = ({ r, l, p }) => {
   return r === "*"
-    ? <span class="ml-3">*{p.value ? ", 0р" : ""}</span>
+    ? <span class="ml-3">*{p.value ? ", 0₽" : ""}</span>
     : (
       <span class={clsx("flex items-center ml-1.5", { "animate-fade-in": l })}>
         <Icon r={r} />
-        <span>{p.value ? `, ${r * PRIZE_PER_WIN}р` : ""}</span>
+        <span>{p.value ? `, ${r * PRIZE_PER_WIN}₽` : ""}</span>
       </span>
     );
 };
@@ -68,15 +68,15 @@ export default function Widget() {
           "text-md sm:text-lg md:text-xl xl:text-2xl",
           " gap-y-1 xl:gap-y-2",
           {
-            "gap-x-2 sm:gap-x-4 md:gap-x-6 xl:gap-x-8": isPrizeEnabled.value,
+            "gap-x-2 sm:gap-x-4 md:gap-x-5 xl:gap-x-6": isPrizeEnabled.value,
           },
         )}
       >
         {tours.map((t) => <Tour t={t} p={isPrizeEnabled} />)}
       </div>
       {isPrizeEnabled.value && (
-        <div class="px-2 text-accent-orange text-xl sm:text-2xl md:text-3xl xl:text-4xl font-montserrat font-bold">
-          Приз: {prize + (isBonusEnabled.value ? PRIZE_FOR_TOP : 0)} р
+        <div class="px-2 text-accent-orange text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-montserrat font-bold">
+          Приз: {prize + (isBonusEnabled.value ? PRIZE_FOR_TOP : 0)}₽
         </div>
       )}
     </div>

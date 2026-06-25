@@ -46,7 +46,7 @@ export default function Dashboard() {
       <Background />
       <div
         class={clsx(
-          "w-screen min-h-screen px-2 md:px-6 py-6",
+          "w-screen min-h-dvh px-2 md:px-6 py-6",
           "flex flex-col items-center justify-start gap-8 lg:gap-12",
           "bg-surface-100 text-secondary-200 text-sm font-montserrat",
         )}
