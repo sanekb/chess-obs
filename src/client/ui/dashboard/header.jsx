@@ -6,7 +6,7 @@ export function Header({ playerName }) {
       </h1>
       <ul class="list-disc text-xs lg:text-sm text-secondary-100 leading-relaxed sm:px-5 lg:px-4 xl:px-6">
         <li>
-          задаётся <strong>последняя не-турнирная партия</strong>{" "}
+          задаётся <strong>последняя до-турнирная партия</strong>{" "}
           <span class="whitespace-nowrap">
             из архива партий{" "}
             <a
