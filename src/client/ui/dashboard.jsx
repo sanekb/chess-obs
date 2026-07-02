@@ -68,7 +68,13 @@ export default function Dashboard() {
           </Control>
           <div class="flex items-center justify-center gap-4 xl:gap-6">
             <Control>
-              <Button onclick={() => manualRefresh(refreshStatus)}>
+              <Button
+                onclick={() =>
+                  manualRefresh().then((g) => {
+                    console.log(g);
+                    !g.error && (refreshStatus.value = { text: "обновлено!" });
+                  })}
+              >
                 Обновить
               </Button>
               <Span>{refreshStatus.value.text}</Span>

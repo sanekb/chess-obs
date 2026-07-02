@@ -1,59 +1,84 @@
 import { env } from "@/server/env.js";
-import { API_THROTTLE_TTL } from "@/consts.js";
-import { list, num, obj, str } from "@oxi/schema";
+import { API_THROTTLE_TTL, APP_NAME } from "@/consts.js";
+import * as v from "valibot";
+import { createFetch, createSchema } from "better-fetch";
+import { getLogger } from "logtape";
 
-// const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
+const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
 
-const endpoint = (user) =>
-  `https://www.chess.com/callback/games/extended-archive?locale=en&username=${user}&page=1`;
+const logger = getLogger([APP_NAME, "chess-api"]);
 
-const gamesSchema = obj({
-  data: list(
-    obj({
-      id: num(),
-      user1Rating: num(),
-      user2Rating: num(),
-      user1Result: num(),
-      user2Result: num(),
-      user1: obj({ username: str() }),
-      user2: obj({ username: str() }),
-    }),
-  ),
+const gameSchema = v.object({
+  id: v.number(),
+  user1Rating: v.number(),
+  user2Rating: v.number(),
+  user1Result: v.number(),
+  user2Result: v.number(),
+  user1: v.object({ username: v.string() }),
+  user2: v.object({ username: v.string() }),
 });
 
-const cache = { games: [], time: -Infinity };
+const gamesSchema = v.object({
+  data: v.array(gameSchema),
+});
 
-export function getCachedGames() {
+const chessSchema = createSchema({
+  "/callback/games/extended-archive": {
+    method: "get",
+    query: v.object({
+      locale: v.string(),
+      username: v.string(),
+      page: v.number(),
+    }),
+    output: gamesSchema,
+  },
+});
+
+const api = createFetch({
+  baseURL: "https://www.chess.com",
+  headers: { "User-Agent": `${APP_NAME}/0.1.2 (contact: ${env.devEmail})` },
+  schema: chessSchema,
+  catchAllError: true,
+});
+
+const cache = { games: mock.data, time: +Infinity };
+
+function getCachedGames(error) {
+  if (error) {
+    logger.warn(
+      "using cachedGames cause of chess.com api error: {*}",
+      { error },
+    );
+  }
   return Promise.resolve(cache.games);
 }
 
-export function getGames() {
-  if (performance.now() - cache.time < API_THROTTLE_TTL) {
-    return Promise.resolve(cache.games);
+export async function getGames(refresh = true) {
+  if (!refresh || performance.now() - cache.time < API_THROTTLE_TTL) {
+    return getCachedGames();
   }
 
-  return fetch(endpoint(env.playerName), {
-    headers: { "User-Agent": `chess-obs/0.1.0 (contact: ${env.devEmail})` },
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error(`Ошибка HTTP: ${res.status} ${res.statusText}`);
-    }
-    return res.json();
-  }).then((json) => {
-    const res = gamesSchema.parse(json);
-
-    if (res.isErr()) throw new Error(`схема ответа не та`);
-    const games = res.unwrap().data.toArray();
-    cache.games = games;
-    cache.time = performance.now();
-    console.log("chess-API", games.length);
-
-    return games;
-  }).catch((err) => {
-    console.error(
-      `Не удалось загрузить данные для ${env.playerName}:`,
-      err.message,
-    );
-    return Promise.resolve(cache.games);
+  const start = performance.now();
+  const { data, error } = await api("/callback/games/extended-archive", {
+    query: {
+      locale: "en",
+      username: env.playerName,
+      page: 1,
+    },
   });
+  const end = performance.now();
+
+  if (error) {
+    return getCachedGames(error);
+  }
+
+  const games = data.data;
+  cache.games = games;
+  cache.time = end;
+
+  logger.info("requests chess.com api success in {duration} ms", {
+    duration: Math.floor(end - start),
+  });
+
+  return games;
 }
