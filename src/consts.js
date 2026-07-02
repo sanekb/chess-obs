@@ -15,5 +15,5 @@ export const PRIZE_PER_WIN = 5e3;
 export const PRIZE_FOR_GMs = 10e3;
 export const PRIZE_FOR_TOP = 10e3;
 
-export const TITLE = "chess-obs";
+export const APP_NAME = "chess-obs";
 export const TAG = "__INIT_DATA__";

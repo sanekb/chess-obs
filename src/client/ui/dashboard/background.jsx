@@ -14,7 +14,7 @@ function Rhombus(props) {
         height="20"
         rx="4"
         ry="4"
-        class="solid"
+        class="solid text-secondary-300"
         transform="rotate(45, 20, 10)"
       />
       <rect
@@ -24,7 +24,7 @@ function Rhombus(props) {
         height="20"
         rx="4"
         ry="4"
-        class="outlined"
+        class="outlined text-secondary-200"
         transform="rotate(45, 28, 10)"
       />
     </svg>
@@ -38,7 +38,15 @@ function Cube(props) {
       viewBox="0 -10 50 40"
       class={cn(props.class, "absolute")}
     >
-      <rect x="10" y="0" width="20" height="20" rx="4" ry="4" class="solid" />
+      <rect
+        x="10"
+        y="0"
+        width="20"
+        height="20"
+        rx="4"
+        ry="4"
+        class="solid text-secondary-300"
+      />
       <rect
         x="16"
         y="-6"
@@ -46,7 +54,7 @@ function Cube(props) {
         height="20"
         rx="4"
         ry="4"
-        class="outlined"
+        class="outlined text-secondary-200"
       />
     </svg>
   );

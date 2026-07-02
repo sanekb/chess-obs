@@ -13,15 +13,15 @@ import {
   toggleWatchMode,
   updateResults,
 } from "@/server/logic.js";
-import { getCachedGames, getGames } from "@/server/chess-api.js";
+import { getGames } from "@/server/chess-api.js";
 import { render } from "preact-render-to-string";
 import { batch } from "preact-signals-core";
-import { TAG, TITLE } from "@/consts.js";
+import { APP_NAME, TAG } from "@/consts.js";
 
 const Layout = () => (
   <html>
     <head>
-      <title>{TITLE}</title>
+      <title>{APP_NAME}</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       <link

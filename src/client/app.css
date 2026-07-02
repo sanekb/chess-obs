@@ -40,12 +40,12 @@
     fill: currentColor;
   }
   aside rect.solid {
-    fill: var(--color-secondary-300);
+    fill: currentColor; /*var(--color-secondary-300);*/
     stroke: none;
   }
   aside rect.outlined {
     fill: none;
-    stroke: var(--color-secondary-200);
+    stroke: currentColor; /*var(--color-secondary-200);*/
   }
 }
 

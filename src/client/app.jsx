@@ -3,9 +3,9 @@ import dashboard from "@/client/ui/dashboard.jsx";
 import widget from "@/client/ui/widget.jsx";
 import { render } from "preact";
 import { connectSSE } from "@/client/api.js";
-import { TITLE } from "@/consts.js";
+import { APP_NAME } from "@/consts.js";
 
-document.title = TITLE +
+document.title = APP_NAME +
   (location.hostname === "localhost" ? " (localhost)" : "");
 
 const { page, state } = JSON.parse(

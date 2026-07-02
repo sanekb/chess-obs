@@ -10,7 +10,7 @@ import { Preview } from "@/client/ui/dashboard/preview.jsx";
 import { Footer } from "@/client/ui/dashboard/footer.jsx";
 import { useSignal, useSignalEffect } from "preact-signals";
 import { store } from "@/client/store.js";
-import { PRIZE_FOR_TOP, TOOLTIP_DELAY } from "@/consts.js";
+import { APP_NAME, PRIZE_FOR_TOP, TOOLTIP_DELAY } from "@/consts.js";
 import {
   changeOffset,
   manualRefresh,
@@ -51,7 +51,7 @@ export default function Dashboard() {
           "bg-surface-100 text-secondary-200 text-sm font-montserrat",
         )}
       >
-        <Header playerName={playerName} />
+        <Header appName={APP_NAME} playerName={playerName} />
         <Controls>
           <Control>
             <div class="flex items-center gap-1">
