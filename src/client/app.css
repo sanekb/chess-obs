@@ -40,12 +40,12 @@
     fill: currentColor;
   }
   aside rect.solid {
-    fill: currentColor; /*var(--color-secondary-300);*/
+    fill: currentColor;
     stroke: none;
   }
   aside rect.outlined {
     fill: none;
-    stroke: currentColor; /*var(--color-secondary-200);*/
+    stroke: currentColor;
   }
 }
 
@@ -65,5 +65,5 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+  animation: fadeIn 0.65s ease-out forwards;
 }
