@@ -33,7 +33,7 @@ export function updateResults(games) {
   gameResults.value = results;
 }
 
-export async function toggleWatchMode(getGames) {
+export function toggleWatchMode(games, getGames) {
   const { isWatchModeEnabled, watchModeAutoOff } = store;
   isWatchModeEnabled.value = !isWatchModeEnabled.value;
 
@@ -43,7 +43,7 @@ export async function toggleWatchMode(getGames) {
     return;
   }
 
-  updateResults(await getGames());
+  updateResults(games);
   watchModeAutoOff.value = WATCH_MODE_AUTO_OFF;
 
   (function loop() {

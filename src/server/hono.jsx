@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { basePath } from "hono/route";
 import { serveStatic } from "hono/deno";
 import { basicAuth } from "hono/basic-auth";
 import { streamSSE } from "hono/streaming";
@@ -17,6 +16,9 @@ import { getGames } from "@/server/chess-api.js";
 import { render } from "preact-render-to-string";
 import { batch } from "preact-signals-core";
 import { APP_NAME, TAG } from "@/consts.js";
+import { getLogger } from "logtape";
+
+const logger = getLogger([APP_NAME, "hono"]);
 
 const Layout = () => (
   <html>
@@ -56,11 +58,13 @@ export const sseManager = {
     this.streams.forEach((s) =>
       s.writeSSE({ data }).catch((e) => {
         this.del(s);
-        console.warn("Dead SSE listener remove");
+        logger.warn("dead SSE listener removed");
       })
     );
   },
 };
+
+const nocontent = (c) => c.body(null, 204);
 
 const dashboard = new Hono()
   .basePath("/dashboard")
@@ -74,36 +78,32 @@ const dashboard = new Hono()
       password: env.devPassword,
     }),
   )
-  .use("*", async (c, next) => {
-    const isRoot = c.req.path.substring(basePath(c).length) === "";
-    if (isRoot) {
-      return await next();
-    }
-    await next();
-    return c.body(null, 204);
-  })
   .get("/", (c) => {
-    console.log(c.get("user"));
+    logger.info("user {user} opened Dashboard", { user: c.get("user") });
     return c.html(SSR("dashboard", store.clientify()));
   })
   .post("/offset/:off", async (c) => {
-    const games = await getCachedGames();
+    const games = await getGames(false);
     batch(() => changeGameOffset(parseInt(c.req.param("off")), games));
+    return nocontent(c);
   })
   .post("/refresh", async (c) => {
     const games = await getGames();
     batch(() => updateResults(games));
-    // await new Promise((r) => setTimeout(r, 1e3));
-    // return c.body("gg", 500);
+    return nocontent(c);
   })
   .post("/watch", async (c) => {
-    batch(() => toggleWatchMode(getGames));
+    const games = await getGames();
+    batch(() => toggleWatchMode(games, getGames));
+    return nocontent(c);
   })
   .post("/bonus", (c) => {
     batch(() => toggleBonus());
+    return nocontent(c);
   })
   .post("/prize", (c) => {
     batch(() => togglePrize());
+    return nocontent(c);
   });
 
 const widget = new Hono()
