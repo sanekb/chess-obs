@@ -1,7 +1,7 @@
 import { store } from "@/client/store.js";
 import { PRIZE_FOR_GMs, PRIZE_FOR_TOP, PRIZE_PER_WIN } from "@/consts.js";
 import { Draw, Loss, Win } from "@/client/ui/icons.jsx";
-import { cn } from "@/utils.js";
+import { cn } from "@/client/utils.js";
 
 const prize = (g) => g ? PRIZE_FOR_GMs : PRIZE_PER_WIN;
 

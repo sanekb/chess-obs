@@ -1,12 +1,12 @@
-import { effect, signal } from "preact-signals-core";
-import { env } from "@/server/env.js";
+import { effect, Signal, signal } from "preact-signals-core";
+import { env } from "@/server/utils.js";
 import { getLogger } from "logtape";
 import { APP_NAME } from "@/consts.js";
 
 const logger = getLogger([APP_NAME, "store"]);
 
 export const store = {
-  playerName: env.playerName,
+  playerName: signal(env.playerName),
 
   lastGameId: signal(0),
   gameOffset: 0,
@@ -21,18 +21,11 @@ export const store = {
   isPrizeEnabled: signal(true),
 
   clientify() {
-    return {
-      playerName: this.playerName,
-      lastGameId: this.lastGameId.value,
-
-      isWatchModeEnabled: this.isWatchModeEnabled.value,
-      watchModeAutoOff: this.watchModeAutoOff.value,
-
-      gameResults: this.gameResults.value,
-
-      isBonusEnabled: this.isBonusEnabled.value,
-      isPrizeEnabled: this.isPrizeEnabled.value,
-    };
+    return Object.fromEntries(
+      Object.entries(this)
+        .filter(([k, v]) => (v instanceof Signal))
+        .map(([k, v]) => [k, v.value]),
+    );
   },
 };
 

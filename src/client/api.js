@@ -3,28 +3,28 @@ import { RECONNECT_DELAYS } from "@/consts.js";
 import { createFetch, createSchema } from "better-fetch";
 import * as v from "valibot";
 
-const nullSchema = v.literal("");
+const nocontentSchema = v.literal("");
 
 const chessSchema = createSchema({
   "/offset/:off": {
     method: "post",
-    output: nullSchema,
+    output: nocontentSchema,
   },
   "/refresh": {
     method: "post",
-    output: nullSchema,
+    output: nocontentSchema,
   },
   "/watch": {
     method: "post",
-    output: nullSchema,
+    output: nocontentSchema,
   },
   "/bonus": {
     method: "post",
-    output: nullSchema,
+    output: nocontentSchema,
   },
   "/prize": {
     method: "post",
-    output: nullSchema,
+    output: nocontentSchema,
   },
 });
 

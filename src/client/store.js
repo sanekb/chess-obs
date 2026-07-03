@@ -14,8 +14,6 @@ export const store = {
   isPrizeEnabled: signal(true),
 
   parse(state) {
-    for (const prop in state) {
-      this[prop].value = state[prop];
-    }
+    Object.entries(state).forEach(([k, v]) => this[k].value = v);
   },
 };

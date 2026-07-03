@@ -18,7 +18,7 @@ import {
   togglePrize,
   toggleWatchMode,
 } from "@/client/logic.js";
-import { cn } from "@/utils.js";
+import { cn } from "@/client/utils.js";
 
 const nbsp = { text: "\u00A0" };
 

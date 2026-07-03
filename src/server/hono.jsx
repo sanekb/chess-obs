@@ -3,7 +3,7 @@ import { serveStatic } from "hono/deno";
 import { basicAuth } from "hono/basic-auth";
 import { streamSSE } from "hono/streaming";
 import { trimTrailingSlash } from "hono/trailing-slash";
-import { env } from "@/server/env.js";
+import { env } from "@/server/utils.js";
 import { store } from "@/server/store.js";
 import {
   changeGameOffset,
@@ -50,17 +50,13 @@ export const sseManager = {
   streams: new Set(),
   add(s) {
     this.streams.add(s);
+    s.writeSSE({ data: JSON.stringify(store.clientify()) });
   },
   del(s) {
     this.streams.delete(s);
   },
   broadcast(data) {
-    this.streams.forEach((s) =>
-      s.writeSSE({ data }).catch((e) => {
-        this.del(s);
-        logger.warn("dead SSE listener removed");
-      })
-    );
+    this.streams.forEach((s) => !s.aborted && s.writeSSE({ data }));
   },
 };
 

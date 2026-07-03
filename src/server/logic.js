@@ -4,7 +4,7 @@ import {
   WATCH_MODE_AUTO_OFF,
   WATCH_MODE_INTERVAL,
 } from "@/consts.js";
-import { env } from "@/server/env.js";
+import { env } from "@/server/utils.js";
 import { batch } from "preact-signals-core";
 
 export function changeGameOffset(off, games) {

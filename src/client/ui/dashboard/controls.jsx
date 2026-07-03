@@ -1,4 +1,4 @@
-import { cn } from "@/utils.js";
+import { cn } from "@/client/utils.js";
 
 export function Button(
   { onclick, active = false, disabled = false, children },

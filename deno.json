@@ -5,6 +5,8 @@
   "lock": false,
   "imports": {
     "@/": "./src/",
+    "@std/dotenv": "jsr:@std/dotenv@^0.225.7",
+    "@std/text": "jsr:@std/text@^1.0.19",
     "better-fetch": "npm:@better-fetch/fetch@^1.3.1",
     "clsx": "npm:clsx@^2.1.1",
     "hono": "jsr:@hono/hono@^4.12.27",

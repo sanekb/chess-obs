@@ -1,4 +1,4 @@
-import { env } from "@/server/env.js";
+import { env } from "@/server/utils.js";
 import { API_THROTTLE_TTL, APP_NAME } from "@/consts.js";
 import * as v from "valibot";
 import { createFetch, createSchema } from "better-fetch";

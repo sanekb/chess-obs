@@ -10,19 +10,24 @@ import { effect } from "preact-signals-core";
 import { store } from "@/server/store.js";
 import { app, sseManager } from "@/server/hono.jsx";
 import { APP_NAME } from "@/consts.js";
+import { env } from "@/server/utils.js";
 
 await configure({
   sinks: {
     console: getConsoleSink({ formatter: ansiColorFormatter }),
   },
-  filters: {},
   loggers: [
     {
       category: ["logtape", "meta"],
       sinks: ["console"],
       lowestLevel: "warning",
     },
-    { category: [APP_NAME], sinks: ["console"], lowestLevel: "debug" },
+    {
+      category: [APP_NAME],
+      sinks: ["console"],
+      lowestLevel: (env.appEnv === "dev" && "debug") ||
+        (env.appEnv === "prod" && "info") || "debug",
+    },
   ],
 });
 
