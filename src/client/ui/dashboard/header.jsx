@@ -22,7 +22,7 @@ export function Header({ appName, playerName }) {
           </span>
         </li>
         <li>
-          результаты всех новых партий после <strong>неё</strong>{" "}
+          результаты всех новых партий <strong>после неё</strong>{" "}
           <span class="whitespace-nowrap">отображаются в Виджете</span>
         </li>
         <li>

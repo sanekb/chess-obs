@@ -1,11 +1,15 @@
 import { store } from "@/server/store.js";
 import {
+  APP_NAME,
   GM_SCORE,
   WATCH_MODE_AUTO_OFF,
   WATCH_MODE_INTERVAL,
 } from "@/consts.js";
 import { env } from "@/server/utils.js";
 import { batch } from "preact-signals-core";
+import { getLogger } from "logtape";
+
+const logger = getLogger([APP_NAME, "logic"]);
 
 export function changeGameOffset(off, games) {
   store.gameOffset = Math.min(
@@ -31,6 +35,29 @@ export function updateResults(games) {
 
   store.gameOffset = o;
   gameResults.value = results;
+
+  logger.info("gameResults changed: {results}", {
+    results: gameResults.value,
+  });
+}
+
+function watchLoop(getGames) {
+  const { isWatchModeEnabled, watchModeAutoOff } = store;
+
+  store.watchModeLoopTid = setTimeout(async () => {
+    const games = await getGames();
+    batch(() => {
+      updateResults(games);
+      watchModeAutoOff.value--;
+
+      if (watchModeAutoOff.value <= 0) {
+        isWatchModeEnabled.value = false;
+        return;
+      }
+
+      watchLoop();
+    });
+  }, WATCH_MODE_INTERVAL);
 }
 
 export function toggleWatchMode(games, getGames) {
@@ -45,23 +72,7 @@ export function toggleWatchMode(games, getGames) {
 
   updateResults(games);
   watchModeAutoOff.value = WATCH_MODE_AUTO_OFF;
-
-  (function loop() {
-    store.watchModeLoopTid = setTimeout(async () => {
-      const games = await getGames();
-      batch(() => {
-        updateResults(games);
-        watchModeAutoOff.value--;
-
-        if (watchModeAutoOff.value <= 0) {
-          isWatchModeEnabled.value = false;
-          return;
-        }
-
-        loop();
-      });
-    }, WATCH_MODE_INTERVAL);
-  })();
+  watchLoop(getGames);
 }
 
 export function toggleBonus() {
@@ -72,4 +83,27 @@ export function toggleBonus() {
 export function togglePrize() {
   const { isPrizeEnabled } = store;
   isPrizeEnabled.value = !isPrizeEnabled.value;
+}
+
+export function initialSetup(games) {
+  changeGameOffset(11, games);
+}
+
+export function setupTournament(isThursday, games, getGames) {
+  const {
+    isPrizeEnabled,
+    isBonusEnabled,
+    isWatchModeEnabled,
+  } = store;
+
+  isPrizeEnabled.value = isThursday;
+  isBonusEnabled.value = false;
+
+  changeGameOffset(0, games);
+  toggleWatchMode(games, getGames);
+  if (!isWatchModeEnabled.value) {
+    toggleWatchMode(games, getGames);
+  }
+
+  logger.info("tournament setuped");
 }

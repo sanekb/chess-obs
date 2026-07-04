@@ -35,9 +35,9 @@
       "dependencies": ["fmt"]
     },
     "dev": {
-      "command": "deno run -A --env-file src/server/app.js",
+      "command": "deno run -A --env-file --unstable-cron src/server/app.js",
       "dependencies": ["build:js", "build:css"]
     },
-    "run": "deno run -A --env-file src/server/app.js"
+    "run": "deno run -A --env-file --unstable-cron src/server/app.js"
   }
 }

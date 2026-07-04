@@ -1,9 +1,5 @@
-import { effect, Signal, signal } from "preact-signals-core";
+import { Signal, signal } from "preact-signals-core";
 import { env } from "@/server/utils.js";
-import { getLogger } from "logtape";
-import { APP_NAME } from "@/consts.js";
-
-const logger = getLogger([APP_NAME, "store"]);
 
 export const store = {
   playerName: signal(env.playerName),
@@ -13,7 +9,7 @@ export const store = {
 
   isWatchModeEnabled: signal(false),
   watchModeAutoOff: signal(0),
-  watchModeLoopTid: null,
+  watchModeLoopTid: 0,
 
   gameResults: signal([]),
 
@@ -28,9 +24,3 @@ export const store = {
     );
   },
 };
-
-effect(() =>
-  logger.info("gameResults changed: {results}", {
-    results: store.gameResults.value,
-  })
-);
