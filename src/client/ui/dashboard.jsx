@@ -23,9 +23,9 @@ import { cn } from "@/client/utils.js";
 const nbsp = { text: "\u00A0" };
 
 export default function Dashboard() {
+  const lastGameId = { value: 9999 };
   const {
     playerName,
-    lastGameId,
     isWatchModeEnabled,
     watchModeAutoOff,
     isBonusEnabled,
@@ -57,12 +57,12 @@ export default function Dashboard() {
             <div class="flex items-center gap-1">
               <Button onclick={() => changeOffset(0)}>Последняя</Button>
               <Button
-                onclick={() => changeOffset(-1)}
-                disabled={gameResults.value.length === 0}
+                onclick={() => changeOffset(1)}
+                // disabled={gameResults.value.length === 0}
               >
                 ⬆
               </Button>
-              <Button onclick={() => changeOffset(1)}>⬇</Button>
+              <Button onclick={() => changeOffset(-1)}>⬇</Button>
             </div>
             <Span>{lastGameId.value}</Span>
           </Control>

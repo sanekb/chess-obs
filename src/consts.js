@@ -17,3 +17,21 @@ export const PRIZE_FOR_TOP = 10e3;
 
 export const APP_NAME = "chess-obs";
 export const TAG = "__INIT_DATA__";
+
+export const RESULTS = {
+  "win": 1,
+  "checkmated": 0,
+  "agreed": 0.5,
+  "repetition": 0.5,
+  "timeout": 0,
+  "resigned": 0,
+  "stalemate": 0.5,
+  "lose": 0,
+  "insufficient": 0.5,
+  "50move": 0.5,
+  "abandoned": 0,
+  "kingofthehill": 0,
+  "threecheck": 0,
+  "timevsinsufficient": 0.5,
+  "bughousepartnerlose": 0,
+};

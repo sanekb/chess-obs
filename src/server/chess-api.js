@@ -4,44 +4,49 @@ import * as v from "valibot";
 import { createFetch, createSchema } from "better-fetch";
 import { getLogger } from "logtape";
 
-const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
+const mock = JSON.parse(Deno.readTextFileSync("./src/mock2.json"));
 
 const logger = getLogger([APP_NAME, "chess-api"]);
 
-const gameSchema = v.object({
-  id: v.number(),
-  user1Rating: v.number(),
-  user2Rating: v.number(),
-  user1Result: v.number(),
-  user2Result: v.number(),
-  user1: v.object({ username: v.string() }),
-  user2: v.object({ username: v.string() }),
+const userSchema = v.object({
+  rating: v.number(),
+  result: v.string(),
+  username: v.string(),
 });
 
-const gamesSchema = v.object({
-  data: v.array(gameSchema),
+const gameSchema = v.object({
+  end_time: v.number(),
+  white: userSchema,
+  black: userSchema,
+  tournament: v.optional(v.string()),
+});
+
+const responseSchema = v.object({
+  games: v.array(gameSchema),
 });
 
 const chessSchema = createSchema({
-  "/callback/games/extended-archive": {
-    method: "get",
-    query: v.object({
-      locale: v.string(),
-      username: v.string(),
-      page: v.number(),
-    }),
-    output: gamesSchema,
+  "/:year/:month": {
+    output: responseSchema,
   },
 });
 
+const cache = { games: [], time: -Infinity, etag: "", lastModified: "" };
+
 const api = createFetch({
-  baseURL: "https://www.chess.com",
+  baseURL: `https://api.chess.com/pub/player/${env.playerName}/games`,
   headers: { "User-Agent": `${APP_NAME}/0.1.2 (contact: ${env.devEmail})` },
   schema: chessSchema,
   catchAllError: true,
+  onRequest: (ctx) => {
+    ctx.headers.set("If-None-Match", cache.etag);
+    ctx.headers.set("If-Modified-Since", cache.lastModified);
+  },
+  onResponse: (ctx) => {
+    cache.etag = ctx.response.headers.get("ETag");
+    cache.lastModified = ctx.response.headers.get("Last-Modified");
+  },
 });
-
-const cache = { games: mock.data, time: +Infinity };
 
 function getCachedGames(error) {
   if (error) {
@@ -53,18 +58,15 @@ function getCachedGames(error) {
   return Promise.resolve(cache.games);
 }
 
-export async function getGames(refresh = true) {
+export async function getGames(chessArchUrlDate, refresh = true) {
   if (!refresh || performance.now() - cache.time < API_THROTTLE_TTL) {
     return getCachedGames();
   }
 
   const start = performance.now();
-  const { data, error } = await api("/callback/games/extended-archive", {
-    query: {
-      locale: "en",
-      username: env.playerName,
-      page: 1,
-    },
+  const { year, month } = chessArchUrlDate;
+  const { data, error } = await api("/:year/:month", {
+    params: { year, month },
   });
   const end = performance.now();
 
@@ -72,13 +74,17 @@ export async function getGames(refresh = true) {
     return getCachedGames(error);
   }
 
-  const games = data.data;
+  const { games } = data;
   cache.games = games;
   cache.time = end;
 
-  logger.info("requests chess.com api success in {duration} ms", {
-    duration: Math.floor(end - start),
-  });
+  logger.info(
+    "requests chess.com api success in {duration} ms - got {length} games",
+    {
+      duration: Math.floor(end - start),
+      length: games.length,
+    },
+  );
 
   return games;
 }

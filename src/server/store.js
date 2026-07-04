@@ -1,11 +1,10 @@
-import { Signal, signal } from "preact-signals-core";
+import { computed, Signal, signal } from "preact-signals-core";
 import { env } from "@/server/utils.js";
 
 export const store = {
   playerName: signal(env.playerName),
 
-  lastGameId: signal(0),
-  gameOffset: 0,
+  tournamentDate: signal(Temporal.Now.plainDateISO()),
 
   isWatchModeEnabled: signal(false),
   watchModeAutoOff: signal(0),
@@ -19,7 +18,7 @@ export const store = {
   clientify() {
     return Object.fromEntries(
       Object.entries(this)
-        .filter(([k, v]) => (v instanceof Signal))
+        .filter(([k, v]) => (v instanceof Signal && k !== "tournamentDate"))
         .map(([k, v]) => [k, v.value]),
     );
   },

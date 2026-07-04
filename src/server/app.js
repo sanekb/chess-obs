@@ -4,7 +4,7 @@ import {
   getConsoleSink,
   getLogger,
 } from "logtape";
-import { initialSetup, setupTournament } from "@/server/logic.js";
+import { setupAtStartup, setupTournament } from "@/server/logic.js";
 import { getGames } from "@/server/chess-api.js";
 import { batch, effect } from "preact-signals-core";
 import { store } from "@/server/store.js";
@@ -33,17 +33,17 @@ await configure({
 
 const logger = getLogger([APP_NAME, "app"]);
 
-const games = await getGames();
-initialSetup(games);
+// const games = await getGames();
+setupAtStartup(getGames);
 
-Deno.cron("setup Titled Tuesday", "47 8 * * 7", async () => {
-  const games = await getGames();
-  batch(() => setupTournament(false, games, getGames));
-});
-Deno.cron("setup Titled Thursday", "48 8 * * 7", async () => {
-  const games = await getGames();
-  batch(() => setupTournament(true, games, getGames));
-});
+// Deno.cron("setup Titled Tuesday", "47 8 * * 7", async () => {
+//   const games = await getGames();
+//   batch(() => setupTournament(false, games, getGames));
+// });
+// Deno.cron("setup Titled Thursday", "48 8 * * 7", async () => {
+//   const games = await getGames();
+//   batch(() => setupTournament(true, games, getGames));
+// });
 
 effect(() => {
   sseManager.broadcast(JSON.stringify(store.clientify()));

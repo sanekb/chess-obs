@@ -6,7 +6,7 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import { env } from "@/server/utils.js";
 import { store } from "@/server/store.js";
 import {
-  changeGameOffset,
+  changeTournamentDate,
   toggleBonus,
   togglePrize,
   toggleWatchMode,
@@ -51,9 +51,11 @@ export const sseManager = {
   add(s) {
     this.streams.add(s);
     s.writeSSE({ data: JSON.stringify(store.clientify()) });
+    logger.debug("add SSE connection");
   },
   del(s) {
     this.streams.delete(s);
+    logger.debug("del SSE connection");
   },
   broadcast(data) {
     this.streams.forEach((s) => !s.aborted && s.writeSSE({ data }));
@@ -79,8 +81,8 @@ const dashboard = new Hono()
     return c.html(SSR("dashboard", store.clientify()));
   })
   .post("/offset/:off", async (c) => {
-    const games = await getGames(false);
-    batch(() => changeGameOffset(parseInt(c.req.param("off")), games));
+    // const games = await getGames(false);
+    batch(() => changeTournamentDate(parseInt(c.req.param("off")), getGames));
     return nocontent(c);
   })
   .post("/refresh", async (c) => {
