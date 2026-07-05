@@ -4,12 +4,12 @@ import {
   getConsoleSink,
   getLogger,
 } from "logtape";
-import { setupAtStartup, setupTournament } from "@/server/logic.js";
-import { batch, effect } from "preact-signals-core";
+import { setupStore } from "@/server/logic.js";
+import { effect } from "preact-signals-core";
 import { store } from "@/server/store.js";
 import { app, getGamesByTournDate, sseManager } from "@/server/hono.jsx";
 import { APP_NAME } from "@/consts.js";
-import { env } from "@/server/utils.js";
+import { env, today } from "@/server/utils.js";
 
 await configure({
   sinks: {
@@ -32,13 +32,13 @@ await configure({
 
 const logger = getLogger([APP_NAME, "app"]);
 
-await setupAtStartup(getGamesByTournDate);
+await setupStore(today(), getGamesByTournDate);
 
-Deno.cron("setup Titled Tuesday", "0 15 * * TUE", () => {
-  setupTournament(false, getGamesByTournDate);
+Deno.cron("setup Titled Tuesday", "0 15 * * TUE", async () => {
+  await setupStore(today(), getGamesByTournDate);
 });
-Deno.cron("setup Titled Thursday", "0 15 * * THU", () => {
-  setupTournament(true, getGamesByTournDate);
+Deno.cron("setup Titled Thursday", "19 20 * * *", async () => {
+  await setupStore(today(), getGamesByTournDate);
 });
 
 effect(() => {

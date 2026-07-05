@@ -63,12 +63,10 @@ const $fetch = createFetch({
 });
 
 function getCachedGames(error) {
-  if (error) {
-    logger.warn(
-      "using cachedGames cause of ChessAPI error: {*}",
-      { error },
-    );
-  }
+  logger.warn(
+    `using cachedGames cause of ${error ? "ChessAPI {*}" : "API_THROTTLE_TTL"}`,
+    { error },
+  );
   return Promise.resolve(cache.games);
 }
 
@@ -77,9 +75,14 @@ export async function getGames(archiveDateTouple) {
     return getCachedGames();
   }
 
+  logger.debug("request /{year}/{month}", archiveDateTouple);
+
   const { data, error } = await $fetch("/:year/:month", {
     params: archiveDateTouple,
   });
+  const sc = structuredClone(cache);
+  Reflect.deleteProperty(sc, "games");
+  logger.debug(sc);
 
   return error ? getCachedGames(error) : (cache.games = data.games);
 }

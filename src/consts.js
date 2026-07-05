@@ -20,18 +20,20 @@ export const TAG = "__INIT_DATA__";
 
 export const RESULTS = {
   "win": 1,
-  "checkmated": 0,
+
   "agreed": 0.5,
+  "50move": 0.5,
+  "stalemate": 0.5,
   "repetition": 0.5,
+  "insufficient": 0.5,
+  "timevsinsufficient": 0.5,
+
+  "lose": 0,
   "timeout": 0,
   "resigned": 0,
-  "stalemate": 0.5,
-  "lose": 0,
-  "insufficient": 0.5,
-  "50move": 0.5,
   "abandoned": 0,
-  "kingofthehill": 0,
+  "checkmated": 0,
   "threecheck": 0,
-  "timevsinsufficient": 0.5,
+  "kingofthehill": 0,
   "bughousepartnerlose": 0,
 };

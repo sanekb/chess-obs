@@ -9,25 +9,18 @@ import {
 import {
   emptyFn,
   env,
-  getLastTournDate,
   getTournUrlRegExp,
   isGreaterThan,
-  isThursday,
+  isTournDay,
+  isTuesday,
+  today,
 } from "@/server/utils.js";
 import { poll } from "@std/async";
-import { batch } from "preact-signals-core";
 import { getLogger } from "logtape";
 
 const logger = getLogger([APP_NAME, "logic"]);
 
-export async function setupAtStartup(getGames) {
-  changeTournDate(0);
-
-  const games = await getGames();
-  updateTourResults(games);
-}
-
-export async function setupTournament(isThursday, getGames) {
+export async function setupStore(today, getGames) {
   const {
     isWatchModeEnabled,
     isPrizeEnabled,
@@ -39,12 +32,15 @@ export async function setupTournament(isThursday, getGames) {
   const games = await getGames();
   updateTourResults(games);
 
-  toggleWatchMode(getGames);
-  if (!isWatchModeEnabled.value) {
+  if (isWatchModeEnabled.value) {
     toggleWatchMode(getGames);
   }
 
-  isPrizeEnabled.value = isThursday;
+  if (!isWatchModeEnabled.value && isTournDay(today)) {
+    toggleWatchMode(getGames);
+  }
+
+  isPrizeEnabled.value = !isTuesday(today);
   isBonusEnabled.value = false;
 
   logger.info("tournament setuped");
@@ -53,22 +49,20 @@ export async function setupTournament(isThursday, getGames) {
 export function changeTournDate(dir) {
   const { tournDate, tournDateStr } = store;
 
-  let ntd, ltd = getLastTournDate();
+  const date = today();
+  const toSubt = [0, 4, 0, 1, 0, 1, 2, 3];
+  const lastTD = date.subtract({ days: toSubt[date.dayOfWeek] });
 
   const method = dir > 0 ? "add" : "subtract";
-  const offset = isThursday(tournDate.value)
-    ? { 1: 5, 0: 0, [-1]: 2 }
-    : { 1: 2, 0: 0, [-1]: 5 };
-  const days = offset[dir];
+  const amount = isTuesday(tournDate.value)
+    ? { 1: 2, 0: 0, [-1]: 5 }
+    : { 1: 5, 0: 0, [-1]: 2 };
 
-  ntd = tournDate.value[method]({ days });
+  const newTD = tournDate.value[method]({ days: amount[dir] });
+  const TD = (dir === 0 || isGreaterThan(newTD, lastTD)) ? lastTD : newTD;
 
-  if (dir === 0 || isGreaterThan(ntd, ltd)) {
-    ntd = ltd;
-  }
-
-  tournDate.value = ntd;
-  tournDateStr.value = ntd.toLocaleString();
+  tournDate.value = TD;
+  tournDateStr.value = TD.toLocaleString();
 
   logger.info("tournDate changed: {date}", { date: tournDateStr.value });
 }
@@ -129,7 +123,6 @@ export function toggleWatchMode(getGames) {
   } else {
     watchModeAutoOff.value = 0;
     watchModeAbortController.value.abort();
-    isWatchModeEnabled.value = false;
   }
 }
 

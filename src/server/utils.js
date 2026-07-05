@@ -1,12 +1,6 @@
 import { loadSync } from "@std/dotenv";
 import { toCamelCase } from "@std/text";
 
-export const emptyFn = () => {};
-
-export const now = () => performance.now();
-
-export const compat = (value) => ({ value });
-
 export const env = Object.fromEntries(
   Object.entries(loadSync()).map(
     ([k, v]) => [toCamelCase(k), v],
@@ -14,17 +8,17 @@ export const env = Object.fromEntries(
 );
 
 export const nocontent = (c) => c.body(null, 204);
+export const emptyFn = () => {};
 
+export const compat = (value) => ({ value });
+
+export const now = () => performance.now();
+export const today = () => Temporal.Now.plainDateISO();
+export const isTuesday = (pd) => pd.dayOfWeek === 2;
 export const isThursday = (pd) => pd.dayOfWeek === 4;
+export const isTournDay = (pd) => isTuesday(pd) || isThursday(pd);
 export const isGreaterThan = (pd1, pd2) =>
   Temporal.PlainDate.compare(pd1, pd2) > 0;
-
-export function getLastTournDate() {
-  const today = Temporal.Now.plainDateISO();
-  const days = [0, 4, 0, 1, 0, 1, 2, 3][today.dayOfWeek];
-
-  return today.subtract({ days });
-}
 
 export function getArchiveDateTouple(date) {
   const year = String(date.year);

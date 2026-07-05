@@ -1,10 +1,10 @@
 import { Signal, signal } from "preact-signals-core";
-import { compat, env } from "@/server/utils.js";
+import { compat, env, today } from "@/server/utils.js";
 
 export const store = {
   playerName: signal(env.playerName),
 
-  tournDate: compat(Temporal.Now.plainDateISO()),
+  tournDate: compat(today()),
   tournDateStr: signal(""),
 
   isWatchModeEnabled: signal(false),

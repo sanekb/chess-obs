@@ -19,7 +19,6 @@ import {
 } from "@/server/logic.js";
 import { getGames } from "@/server/chess-api.js";
 import { render } from "preact-render-to-string";
-import { batch } from "preact-signals-core";
 import { APP_NAME, TAG } from "@/consts.js";
 import { getLogger } from "logtape";
 

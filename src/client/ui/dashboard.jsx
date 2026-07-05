@@ -18,7 +18,7 @@ import {
   togglePrize,
   toggleWatchMode,
 } from "@/client/logic.js";
-import { cn, nbsp } from "@/client/utils.js";
+import { cn, getLastTournDate, nbsp } from "@/client/utils.js";
 import { debounce } from "@std/async";
 
 export default function Dashboard() {
@@ -56,7 +56,12 @@ export default function Dashboard() {
           <Control>
             <div class="flex items-center gap-1">
               <Button onclick={() => changeTournDate(0)}>Последний</Button>
-              <Button onclick={() => changeTournDate(1)}>⬆</Button>
+              <Button
+                onclick={() => changeTournDate(1)}
+                disabled={tournDateStr.value === getLastTournDate()}
+              >
+                ⬆
+              </Button>
               <Button onclick={() => changeTournDate(-1)}>⬇</Button>
             </div>
             <Span>Турнир от {tournDateStr.value}</Span>
