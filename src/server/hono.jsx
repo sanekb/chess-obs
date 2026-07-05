@@ -3,7 +3,12 @@ import { serveStatic } from "hono/deno";
 import { basicAuth } from "hono/basic-auth";
 import { streamSSE } from "hono/streaming";
 import { trimTrailingSlash } from "hono/trailing-slash";
-import { env, getArchiveDateTouple } from "@/server/utils.js";
+import {
+  emptyFn,
+  env,
+  getArchiveDateTouple,
+  nocontent,
+} from "@/server/utils.js";
 import { store } from "@/server/store.js";
 import {
   changeTournDate,
@@ -63,12 +68,10 @@ export const sseManager = {
 };
 
 export const getGamesByTournDate = async () => {
-  const adt = getArchiveDateTouple(store.tournDate);
+  const adt = getArchiveDateTouple(store.tournDate.value);
   const games = await getGames(adt);
   return games;
 };
-
-const nocontent = (c) => c.body(null, 204);
 
 const dashboard = new Hono()
   .basePath("/dashboard")
@@ -127,6 +130,6 @@ export const app = new Hono()
     return streamSSE(c, (s) => {
       sseManager.add(s);
       s.onAbort(() => sseManager.del(s));
-      return new Promise(() => {});
+      return new Promise(emptyFn);
     });
   });

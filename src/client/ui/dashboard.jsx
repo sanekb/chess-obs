@@ -18,9 +18,8 @@ import {
   togglePrize,
   toggleWatchMode,
 } from "@/client/logic.js";
-import { cn } from "@/client/utils.js";
-
-const nbsp = { text: "\u00A0" };
+import { cn, nbsp } from "@/client/utils.js";
+import { debounce } from "@std/async";
 
 export default function Dashboard() {
   const {
@@ -33,10 +32,12 @@ export default function Dashboard() {
   } = store;
 
   const refreshStatus = useSignal(nbsp);
+  const deb = debounce(() => refreshStatus.value = nbsp, TOOLTIP_DELAY);
+
   useSignalEffect(() => {
     if (refreshStatus.value !== nbsp) {
-      const timer = setTimeout(() => refreshStatus.value = nbsp, TOOLTIP_DELAY);
-      return () => clearTimeout(timer);
+      deb();
+      return () => deb.clear();
     }
   });
 
@@ -55,12 +56,7 @@ export default function Dashboard() {
           <Control>
             <div class="flex items-center gap-1">
               <Button onclick={() => changeTournDate(0)}>Последний</Button>
-              <Button
-                onclick={() => changeTournDate(1)}
-                // disabled={gameResults.value.length === 0}
-              >
-                ⬆
-              </Button>
+              <Button onclick={() => changeTournDate(1)}>⬆</Button>
               <Button onclick={() => changeTournDate(-1)}>⬇</Button>
             </div>
             <Span>Турнир от {tournDateStr.value}</Span>
@@ -69,10 +65,9 @@ export default function Dashboard() {
             <Control>
               <Button
                 onclick={() =>
-                  manualRefresh().then((g) => {
-                    console.log(g);
-                    !g.error && (refreshStatus.value = { text: "обновлено!" });
-                  })}
+                  manualRefresh().then((r) =>
+                    !r.error && (refreshStatus.value = { text: "обновлено!" })
+                  )}
               >
                 Обновить
               </Button>

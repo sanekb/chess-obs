@@ -1,9 +1,7 @@
 import { store } from "@/client/store.js";
 import { RECONNECT_DELAYS } from "@/consts.js";
 import { createFetch, createSchema } from "better-fetch";
-import * as v from "valibot";
-
-const nocontentSchema = v.literal("");
+import { nocontentSchema } from "@/client/utils.js";
 
 const chessSchema = createSchema({
   "/change/:dir": {
@@ -28,7 +26,7 @@ const chessSchema = createSchema({
   },
 });
 
-export const api = createFetch({
+export const $fetch = createFetch({
   baseURL: new URL("/dashboard", location.origin).href,
   schema: chessSchema,
   catchAllError: true,

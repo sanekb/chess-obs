@@ -7,11 +7,12 @@ import {
   WATCH_MODE_INTERVAL,
 } from "@/consts.js";
 import {
+  emptyFn,
   env,
   getLastTournDate,
   getTournUrlRegExp,
   isGreaterThan,
-  isTuesday,
+  isThursday,
 } from "@/server/utils.js";
 import { poll } from "@std/async";
 import { batch } from "preact-signals-core";
@@ -51,21 +52,23 @@ export async function setupTournament(isThursday, getGames) {
 
 export function changeTournDate(dir) {
   const { tournDate, tournDateStr } = store;
-  const ltd = getLastTournDate();
-  let td;
 
-  if (dir === 1) {
-    td = tournDate.add({ days: isTuesday(tournDate) ? 2 : 5 });
-  }
-  if (dir === -1) {
-    td = tournDate.subtract({ days: isTuesday(tournDate) ? 5 : 2 });
-  }
-  if (dir === 0 || isGreaterThan(td, ltd)) {
-    td = ltd;
+  let ntd, ltd = getLastTournDate();
+
+  const method = dir > 0 ? "add" : "subtract";
+  const offset = isThursday(tournDate.value)
+    ? { 1: 5, 0: 0, [-1]: 2 }
+    : { 1: 2, 0: 0, [-1]: 5 };
+  const days = offset[dir];
+
+  ntd = tournDate.value[method]({ days });
+
+  if (dir === 0 || isGreaterThan(ntd, ltd)) {
+    ntd = ltd;
   }
 
-  tournDateStr.value = td.toLocaleString();
-  store.tournDate = td;
+  tournDate.value = ntd;
+  tournDateStr.value = ntd.toLocaleString();
 
   logger.info("tournDate changed: {date}", { date: tournDateStr.value });
 }
@@ -73,7 +76,7 @@ export function changeTournDate(dir) {
 export function updateTourResults(games) {
   const { tournDate, tourResults } = store;
 
-  const regexp = getTournUrlRegExp(tournDate);
+  const regexp = getTournUrlRegExp(tournDate.value);
 
   const results = games.filter((g) => regexp.test(g.tournament ?? ""))
     .sort((a, b) => a.end_time - b.end_time).map((g) =>
@@ -91,35 +94,42 @@ function watchLoop(getGames) {
   const {
     isWatchModeEnabled,
     watchModeAutoOff,
-    watchModeAbortSignal,
+    watchModeAbortController,
   } = store;
 
   poll(
     async () => {
-      const games = await getGames();
-      updateTourResults(games);
-      watchModeAutoOff.value--;
-      isWatchModeEnabled.value = watchModeAutoOff.value > 0;
+      // const games = await getGames();
+      // updateTourResults(games);
+      console.log("getGames");
     },
-    () => (!isWatchModeEnabled.value || watchModeAutoOff.value <= 0),
+    () => --watchModeAutoOff.value <= 0,
     {
       interval: WATCH_MODE_INTERVAL,
-      signal: watchModeAbortSignal,
+      signal: watchModeAbortController.value.signal,
     },
-  );
+  )
+    .then(() => isWatchModeEnabled.value = false)
+    .catch(emptyFn);
 }
 
 export function toggleWatchMode(getGames) {
-  const { isWatchModeEnabled, watchModeAutoOff } = store;
+  const {
+    isWatchModeEnabled,
+    watchModeAutoOff,
+    watchModeAbortController,
+  } = store;
+
   isWatchModeEnabled.value = !isWatchModeEnabled.value;
 
   if (isWatchModeEnabled.value) {
     watchModeAutoOff.value = WATCH_MODE_AUTO_OFF;
-    store.watchModeAbortSignal = new AbortSignal();
+    watchModeAbortController.value = new AbortController();
     watchLoop(getGames);
   } else {
     watchModeAutoOff.value = 0;
-    store.watchModeAbortSignal.abort();
+    watchModeAbortController.value.abort();
+    isWatchModeEnabled.value = false;
   }
 }
 
