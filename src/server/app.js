@@ -5,10 +5,9 @@ import {
   getLogger,
 } from "logtape";
 import { setupAtStartup, setupTournament } from "@/server/logic.js";
-import { getGames } from "@/server/chess-api.js";
 import { batch, effect } from "preact-signals-core";
 import { store } from "@/server/store.js";
-import { app, sseManager } from "@/server/hono.jsx";
+import { app, getGamesByTournDate, sseManager } from "@/server/hono.jsx";
 import { APP_NAME } from "@/consts.js";
 import { env } from "@/server/utils.js";
 
@@ -33,23 +32,19 @@ await configure({
 
 const logger = getLogger([APP_NAME, "app"]);
 
-// const games = await getGames();
-setupAtStartup(getGames);
+await setupAtStartup(getGamesByTournDate);
 
-// Deno.cron("setup Titled Tuesday", "47 8 * * 7", async () => {
-//   const games = await getGames();
-//   batch(() => setupTournament(false, games, getGames));
-// });
-// Deno.cron("setup Titled Thursday", "48 8 * * 7", async () => {
-//   const games = await getGames();
-//   batch(() => setupTournament(true, games, getGames));
-// });
+Deno.cron("setup Titled Tuesday", "0 15 * * TUE", () => {
+  setupTournament(false, getGamesByTournDate);
+});
+Deno.cron("setup Titled Thursday", "0 15 * * THU", () => {
+  setupTournament(true, getGamesByTournDate);
+});
 
 effect(() => {
   sseManager.broadcast(JSON.stringify(store.clientify()));
 });
 
 Deno.serve({
-  onListen: (addr) =>
-    logger.info("listening on port {port}", { port: addr.port }),
+  onListen: (addr) => logger.info`Listening on ${addr.hostname}:${addr.port}`,
 }, app.fetch);

@@ -8,82 +8,72 @@ import {
 } from "@/consts.js";
 import {
   env,
-  getChessArchUrlDate,
-  getLastTournamentDate,
-  getTournamentRegExp,
+  getLastTournDate,
+  getTournUrlRegExp,
+  isGreaterThan,
+  isTuesday,
 } from "@/server/utils.js";
+import { poll } from "@std/async";
 import { batch } from "preact-signals-core";
 import { getLogger } from "logtape";
 
 const logger = getLogger([APP_NAME, "logic"]);
 
-export function setupAtStartup(getGames) {
-  changeTournamentDate(0, getGames);
+export async function setupAtStartup(getGames) {
+  changeTournDate(0);
+
+  const games = await getGames();
+  updateTourResults(games);
 }
 
-export function setupTournament(isThursday, games, getGames) {
+export async function setupTournament(isThursday, getGames) {
   const {
+    isWatchModeEnabled,
     isPrizeEnabled,
     isBonusEnabled,
-    isWatchModeEnabled,
   } = store;
+
+  changeTournDate(0);
+
+  const games = await getGames();
+  updateTourResults(games);
+
+  toggleWatchMode(getGames);
+  if (!isWatchModeEnabled.value) {
+    toggleWatchMode(getGames);
+  }
 
   isPrizeEnabled.value = isThursday;
   isBonusEnabled.value = false;
 
-  updateResults(games);
-  toggleWatchMode(games, getGames);
-  if (!isWatchModeEnabled.value) {
-    toggleWatchMode(games, getGames);
-  }
-
   logger.info("tournament setuped");
 }
 
-/**
- * Устанавливает дату титульника через prev/next через -1|1 и 0 - последний
- */
-export async function changeTournamentDate(off, getGames) {
-  const { tournamentDate } = store;
-  const ltd = getLastTournamentDate();
+export function changeTournDate(dir) {
+  const { tournDate, tournDateStr } = store;
+  const ltd = getLastTournDate();
   let td;
 
-  if (off === 0) {
-    td = ltd;
+  if (dir === 1) {
+    td = tournDate.add({ days: isTuesday(tournDate) ? 2 : 5 });
   }
-  if (off === 1) {
-    const daysToAdd = tournamentDate.value.dayOfWeek === 2 ? 2 : 5;
-    td = tournamentDate.value.add({ days: daysToAdd });
+  if (dir === -1) {
+    td = tournDate.subtract({ days: isTuesday(tournDate) ? 5 : 2 });
   }
-  if (off === -1) {
-    const daysToSubtract = tournamentDate.value.dayOfWeek === 2 ? 5 : 2;
-    td = tournamentDate.value.subtract({ days: daysToSubtract });
-  }
-
-  if (Temporal.PlainDate.compare(td, ltd) > 0) {
+  if (dir === 0 || isGreaterThan(td, ltd)) {
     td = ltd;
   }
 
-  tournamentDate.value = td;
+  tournDateStr.value = td.toLocaleString();
+  store.tournDate = td;
 
-  logger.info("tournamentDate changed: {td}", {
-    td: tournamentDate.value.toString(),
-  });
-
-  // const chessArchDate = getChessArchUrlDate(td);
-  // const games = await getGames( chessArchDate )
-
-  // updateResults( games );
+  logger.info("tournDate changed: {date}", { date: tournDateStr.value });
 }
 
-/**
- * Получает на вход массив игр для какого-то месяца
- * основываясь на дате титульника отфильтровывает то что нужно отфильтровать
- */
-export function updateResults(games) {
-  const { tournamentDate, gameResults } = store;
+export function updateTourResults(games) {
+  const { tournDate, tourResults } = store;
 
-  const regexp = getTournamentRegExp(tournamentDate.value);
+  const regexp = getTournUrlRegExp(tournDate);
 
   const results = games.filter((g) => regexp.test(g.tournament ?? ""))
     .sort((a, b) => a.end_time - b.end_time).map((g) =>
@@ -92,45 +82,45 @@ export function updateResults(games) {
         : [RESULTS[g.black.result], g.white.rating >= GM_SCORE]
     );
 
-  gameResults.value = results;
+  tourResults.value = results;
 
-  logger.info("gameResults changed: {results}", {
-    results: gameResults.value,
-  });
+  logger.info("tourResults changed: {results}", { results: tourResults.value });
 }
 
 function watchLoop(getGames) {
-  const { isWatchModeEnabled, watchModeAutoOff } = store;
+  const {
+    isWatchModeEnabled,
+    watchModeAutoOff,
+    watchModeAbortSignal,
+  } = store;
 
-  store.watchModeLoopTid = setTimeout(async () => {
-    const games = await getGames();
-    batch(() => {
-      updateResults(games);
+  poll(
+    async () => {
+      const games = await getGames();
+      updateTourResults(games);
       watchModeAutoOff.value--;
-
-      if (watchModeAutoOff.value <= 0) {
-        isWatchModeEnabled.value = false;
-        return;
-      }
-
-      watchLoop();
-    });
-  }, WATCH_MODE_INTERVAL);
+      isWatchModeEnabled.value = watchModeAutoOff.value > 0;
+    },
+    () => (!isWatchModeEnabled.value || watchModeAutoOff.value <= 0),
+    {
+      interval: WATCH_MODE_INTERVAL,
+      signal: watchModeAbortSignal,
+    },
+  );
 }
 
-export function toggleWatchMode(games, getGames) {
+export function toggleWatchMode(getGames) {
   const { isWatchModeEnabled, watchModeAutoOff } = store;
   isWatchModeEnabled.value = !isWatchModeEnabled.value;
 
-  if (!isWatchModeEnabled.value) {
+  if (isWatchModeEnabled.value) {
+    watchModeAutoOff.value = WATCH_MODE_AUTO_OFF;
+    store.watchModeAbortSignal = new AbortSignal();
+    watchLoop(getGames);
+  } else {
     watchModeAutoOff.value = 0;
-    clearTimeout(store.watchModeLoopTid);
-    return;
+    store.watchModeAbortSignal.abort();
   }
-
-  updateResults(games);
-  watchModeAutoOff.value = WATCH_MODE_AUTO_OFF;
-  watchLoop(getGames);
 }
 
 export function toggleBonus() {

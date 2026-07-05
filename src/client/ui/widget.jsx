@@ -5,11 +5,11 @@ import { cn } from "@/client/utils.js";
 
 const prize = (g) => g ? PRIZE_FOR_GMs : PRIZE_PER_WIN;
 
-function prepareForGrid(gameResults) {
-  const last = gameResults.length;
+function prepareForGrid(tourResults) {
+  const last = tourResults.length;
   const tours = [];
   const push = (i) => {
-    const [r, g] = gameResults[i - 1] ?? ["*", false];
+    const [r, g] = tourResults[i - 1] ?? ["*", false];
     tours.push({
       i,
       r,
@@ -65,8 +65,8 @@ const Tour = ({ t, p }) => {
 };
 
 export default function Widget() {
-  const { isBonusEnabled, isPrizeEnabled, gameResults } = store;
-  const { tours, prize } = prepareForGrid(gameResults.value);
+  const { isBonusEnabled, isPrizeEnabled, tourResults } = store;
+  const { tours, prize } = prepareForGrid(tourResults.value);
 
   return (
     <div class="p-2 sm:p-3 xl:p-4 flex flex-col gap-y-4 uppercase">

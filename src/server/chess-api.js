@@ -1,12 +1,22 @@
-import { env } from "@/server/utils.js";
+import { env, now } from "@/server/utils.js";
 import { API_THROTTLE_TTL, APP_NAME } from "@/consts.js";
 import * as v from "valibot";
 import { createFetch, createSchema } from "better-fetch";
 import { getLogger } from "logtape";
 
-const mock = JSON.parse(Deno.readTextFileSync("./src/mock2.json"));
+// const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
 
 const logger = getLogger([APP_NAME, "chess-api"]);
+
+const cache = {
+  games: [],
+
+  timeStart: 0,
+  timeEnd: -API_THROTTLE_TTL,
+
+  etag: "",
+  lastModified: "",
+};
 
 const userSchema = v.object({
   rating: v.number(),
@@ -31,60 +41,45 @@ const chessSchema = createSchema({
   },
 });
 
-const cache = { games: [], time: -Infinity, etag: "", lastModified: "" };
-
-const api = createFetch({
+const $fetch = createFetch({
   baseURL: `https://api.chess.com/pub/player/${env.playerName}/games`,
   headers: { "User-Agent": `${APP_NAME}/0.1.2 (contact: ${env.devEmail})` },
   schema: chessSchema,
   catchAllError: true,
   onRequest: (ctx) => {
+    cache.timeStart = now();
     ctx.headers.set("If-None-Match", cache.etag);
     ctx.headers.set("If-Modified-Since", cache.lastModified);
   },
   onResponse: (ctx) => {
+    cache.timeEnd = now();
     cache.etag = ctx.response.headers.get("ETag");
     cache.lastModified = ctx.response.headers.get("Last-Modified");
+
+    logger.info("request to ChessAPI complete in {dur} ms", {
+      dur: Math.floor(cache.timeEnd - cache.timeStart),
+    });
   },
 });
 
 function getCachedGames(error) {
   if (error) {
     logger.warn(
-      "using cachedGames cause of chess.com api error: {*}",
+      "using cachedGames cause of ChessAPI error: {*}",
       { error },
     );
   }
   return Promise.resolve(cache.games);
 }
 
-export async function getGames(chessArchUrlDate, refresh = true) {
-  if (!refresh || performance.now() - cache.time < API_THROTTLE_TTL) {
+export async function getGames(archiveDateTouple) {
+  if (now() - cache.timeEnd <= API_THROTTLE_TTL) {
     return getCachedGames();
   }
 
-  const start = performance.now();
-  const { year, month } = chessArchUrlDate;
-  const { data, error } = await api("/:year/:month", {
-    params: { year, month },
+  const { data, error } = await $fetch("/:year/:month", {
+    params: archiveDateTouple,
   });
-  const end = performance.now();
 
-  if (error) {
-    return getCachedGames(error);
-  }
-
-  const { games } = data;
-  cache.games = games;
-  cache.time = end;
-
-  logger.info(
-    "requests chess.com api success in {duration} ms - got {length} games",
-    {
-      duration: Math.floor(end - start),
-      length: games.length,
-    },
-  );
-
-  return games;
+  return error ? getCachedGames(error) : (cache.games = data.games);
 }

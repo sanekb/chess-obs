@@ -3,12 +3,12 @@ import { signal } from "preact-signals";
 export const store = {
   playerName: signal(""),
 
-  // tournamentDateString: signal(""),
+  tournDateStr: signal(""),
 
   isWatchModeEnabled: signal(false),
   watchModeAutoOff: signal(0),
 
-  gameResults: signal([]),
+  tourResults: signal([]),
 
   isBonusEnabled: signal(false),
   isPrizeEnabled: signal(true),

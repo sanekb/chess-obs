@@ -12,7 +12,7 @@ import { useSignal, useSignalEffect } from "preact-signals";
 import { store } from "@/client/store.js";
 import { APP_NAME, PRIZE_FOR_TOP, TOOLTIP_DELAY } from "@/consts.js";
 import {
-  changeOffset,
+  changeTournDate,
   manualRefresh,
   toggleBonus,
   togglePrize,
@@ -23,14 +23,13 @@ import { cn } from "@/client/utils.js";
 const nbsp = { text: "\u00A0" };
 
 export default function Dashboard() {
-  const lastGameId = { value: 9999 };
   const {
     playerName,
+    tournDateStr,
     isWatchModeEnabled,
     watchModeAutoOff,
     isBonusEnabled,
     isPrizeEnabled,
-    gameResults,
   } = store;
 
   const refreshStatus = useSignal(nbsp);
@@ -55,16 +54,16 @@ export default function Dashboard() {
         <Controls>
           <Control>
             <div class="flex items-center gap-1">
-              <Button onclick={() => changeOffset(0)}>Последняя</Button>
+              <Button onclick={() => changeTournDate(0)}>Последний</Button>
               <Button
-                onclick={() => changeOffset(1)}
+                onclick={() => changeTournDate(1)}
                 // disabled={gameResults.value.length === 0}
               >
                 ⬆
               </Button>
-              <Button onclick={() => changeOffset(-1)}>⬇</Button>
+              <Button onclick={() => changeTournDate(-1)}>⬇</Button>
             </div>
-            <Span>{lastGameId.value}</Span>
+            <Span>Турнир от {tournDateStr.value}</Span>
           </Control>
           <div class="flex items-center justify-center gap-4 xl:gap-6">
             <Control>

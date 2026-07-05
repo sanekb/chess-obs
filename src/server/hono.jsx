@@ -3,14 +3,14 @@ import { serveStatic } from "hono/deno";
 import { basicAuth } from "hono/basic-auth";
 import { streamSSE } from "hono/streaming";
 import { trimTrailingSlash } from "hono/trailing-slash";
-import { env } from "@/server/utils.js";
+import { env, getArchiveDateTouple } from "@/server/utils.js";
 import { store } from "@/server/store.js";
 import {
-  changeTournamentDate,
+  changeTournDate,
   toggleBonus,
   togglePrize,
   toggleWatchMode,
-  updateResults,
+  updateTourResults,
 } from "@/server/logic.js";
 import { getGames } from "@/server/chess-api.js";
 import { render } from "preact-render-to-string";
@@ -62,6 +62,12 @@ export const sseManager = {
   },
 };
 
+export const getGamesByTournDate = async () => {
+  const adt = getArchiveDateTouple(store.tournDate);
+  const games = await getGames(adt);
+  return games;
+};
+
 const nocontent = (c) => c.body(null, 204);
 
 const dashboard = new Hono()
@@ -80,27 +86,27 @@ const dashboard = new Hono()
     logger.info("user {user} opened Dashboard", { user: c.get("user") });
     return c.html(SSR("dashboard", store.clientify()));
   })
-  .post("/offset/:off", async (c) => {
-    // const games = await getGames(false);
-    batch(() => changeTournamentDate(parseInt(c.req.param("off")), getGames));
+  .post("/change/:dir", async (c) => {
+    changeTournDate(parseInt(c.req.param("dir")));
+    const games = await getGamesByTournDate();
+    updateTourResults(games);
     return nocontent(c);
   })
   .post("/refresh", async (c) => {
-    const games = await getGames();
-    batch(() => updateResults(games));
+    const games = await getGamesByTournDate();
+    updateTourResults(games);
     return nocontent(c);
   })
-  .post("/watch", async (c) => {
-    const games = await getGames();
-    batch(() => toggleWatchMode(games, getGames));
+  .post("/watch", (c) => {
+    toggleWatchMode(getGamesByTournDate);
     return nocontent(c);
   })
   .post("/bonus", (c) => {
-    batch(() => toggleBonus());
+    toggleBonus();
     return nocontent(c);
   })
   .post("/prize", (c) => {
-    batch(() => togglePrize());
+    togglePrize();
     return nocontent(c);
   });
 

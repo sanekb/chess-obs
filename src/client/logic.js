@@ -1,7 +1,7 @@
 import { api } from "@/client/api.js";
 
-export const changeOffset = (off) =>
-  api("/offset/:off", { params: { off: String(off) } });
+export const changeTournDate = (dir) =>
+  api("/change/:dir", { params: { dir: String(dir) } });
 export const manualRefresh = () => api("/refresh");
 export const toggleWatchMode = () => api("/watch");
 export const toggleBonus = () => api("/bonus");

@@ -6,7 +6,7 @@ import * as v from "valibot";
 const nocontentSchema = v.literal("");
 
 const chessSchema = createSchema({
-  "/offset/:off": {
+  "/change/:dir": {
     method: "post",
     output: nocontentSchema,
   },
