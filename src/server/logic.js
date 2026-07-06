@@ -22,6 +22,7 @@ const logger = getLogger([APP_NAME, "logic"]);
 
 export async function setupStore(today, getGames) {
   const {
+    tournDate,
     isWatchModeEnabled,
     isPrizeEnabled,
     isBonusEnabled,
@@ -29,7 +30,7 @@ export async function setupStore(today, getGames) {
 
   changeTournDate(0);
 
-  const games = await getGames();
+  const games = await getGames(tournDate.value);
   updateTourResults(games);
 
   if (isWatchModeEnabled.value) {
@@ -81,11 +82,16 @@ export function updateTourResults(games) {
 
   tourResults.value = results;
 
-  logger.info("tourResults changed: {results}", { results: tourResults.value });
+  logger.info("tourResults changed: {results}", {
+    results: tourResults.value.map((r) => `${r[0]}${r[1] ? "*" : ""}`).join(
+      " ",
+    ),
+  });
 }
 
 function watchLoop(getGames) {
   const {
+    tournDate,
     isWatchModeEnabled,
     watchModeAutoOff,
     watchModeAbortController,
@@ -93,9 +99,9 @@ function watchLoop(getGames) {
 
   poll(
     async () => {
-      // const games = await getGames();
-      // updateTourResults(games);
-      console.log("getGames");
+      const games = await getGames(tournDate.value);
+      updateTourResults(games);
+      // console.log("getGames");
     },
     () => --watchModeAutoOff.value <= 0,
     {

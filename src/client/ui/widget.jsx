@@ -1,37 +1,13 @@
 import { store } from "@/client/store.js";
-import { PRIZE_FOR_GMs, PRIZE_FOR_TOP, PRIZE_PER_WIN } from "@/consts.js";
+import { PRIZE_FOR_TOP } from "@/consts.js";
 import { Draw, Loss, Win } from "@/client/ui/icons.jsx";
-import { cn } from "@/client/utils.js";
-
-const prize = (g) => g ? PRIZE_FOR_GMs : PRIZE_PER_WIN;
-
-function prepareForGrid(tourResults) {
-  const last = tourResults.length;
-  const tours = [];
-  const push = (i) => {
-    const [r, g] = tourResults[i - 1] ?? ["*", false];
-    tours.push({
-      i,
-      r,
-      g,
-      l: i === last,
-    });
-  };
-
-  for (let i = 1; i <= 6; i++) {
-    push(i + 0);
-    push(i + 6);
-  }
-  tours.pop();
-
-  return {
-    tours,
-    prize: tours.reduce(
-      (p, t) => p + (t.r !== "*" ? t.r * prize(t.g) : 0),
-      0,
-    ),
-  };
-}
+import {
+  cn,
+  getLastTournDate,
+  noRes,
+  prepareForGrid,
+  prize,
+} from "@/client/utils.js";
 
 const Icon = ({ t }) => {
   if (t.r === 1) return <Win />;
@@ -41,7 +17,7 @@ const Icon = ({ t }) => {
 };
 
 const Res = ({ t, p }) => {
-  return t.r === "*"
+  return t.r === noRes
     ? <span class="ml-3">*{p.value ? ", 0₽" : ""}</span>
     : (
       <span
@@ -65,7 +41,7 @@ const Tour = ({ t, p }) => {
 };
 
 export default function Widget() {
-  const { isBonusEnabled, isPrizeEnabled, tourResults } = store;
+  const { isBonusEnabled, isPrizeEnabled, tourResults, tournDateStr } = store;
   const { tours, prize } = prepareForGrid(tourResults.value);
 
   return (
@@ -80,7 +56,12 @@ export default function Widget() {
           },
         )}
       >
-        {tours.map((t) => <Tour t={t} p={isPrizeEnabled} />)}
+        {tours.map((t) => <Tour key={t.i} t={t} p={isPrizeEnabled} />)}
+        {tournDateStr.value !== getLastTournDate() && (
+          <div class="flex justify-center items-center tracking-normal text-xxs lg:text-xs text-secondary-200">
+            Турнир от {tournDateStr.value}
+          </div>
+        )}
       </div>
       {isPrizeEnabled.value && (
         <div class="px-2 text-accent-orange text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-montserrat font-bold">

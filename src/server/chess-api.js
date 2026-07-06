@@ -36,13 +36,13 @@ const responseSchema = v.object({
 });
 
 const chessSchema = createSchema({
-  "/:year/:month": {
+  "/games/:year/:month": {
     output: responseSchema,
   },
 });
 
 const $fetch = createFetch({
-  baseURL: `https://api.chess.com/pub/player/${env.playerName}/games`,
+  baseURL: `https://api.chess.com/pub/player/${env.playerName}`,
   headers: { "User-Agent": `${APP_NAME}/0.1.2 (contact: ${env.devEmail})` },
   schema: chessSchema,
   catchAllError: true,
@@ -70,16 +70,20 @@ function getCachedGames(error) {
   return Promise.resolve(cache.games);
 }
 
-export async function getGames(archiveDateTouple) {
+export async function getGames(tournDate) {
   if (now() - cache.timeEnd <= API_THROTTLE_TTL) {
     return getCachedGames();
   }
 
-  logger.debug("request /{year}/{month}", archiveDateTouple);
+  const params = {
+    year: String(tournDate.year),
+    month: String(tournDate.month).padStart(2, "0"),
+  };
 
-  const { data, error } = await $fetch("/:year/:month", {
-    params: archiveDateTouple,
-  });
+  logger.debug("request {year} {month}", params);
+
+  const { data, error } = await $fetch("/games/:year/:month", { params });
+
   const sc = structuredClone(cache);
   Reflect.deleteProperty(sc, "games");
   logger.debug(sc);

@@ -17,7 +17,7 @@ import {
   toggleBonus,
   togglePrize,
   toggleWatchMode,
-} from "@/client/logic.js";
+} from "@/client/actions.js";
 import { cn, getLastTournDate, nbsp } from "@/client/utils.js";
 import { debounce } from "@std/async";
 

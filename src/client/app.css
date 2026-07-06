@@ -11,6 +11,9 @@
 }
 
 @theme {
+  --text-xxs: 0.625rem;
+  --text-xxs--line-height: calc(0.875 / 0.625);
+
   --breakpoint-sm: 360px;
   --breakpoint-md: 390px;
   --breakpoint-lg: 412px;

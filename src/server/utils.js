@@ -20,13 +20,6 @@ export const isTournDay = (pd) => isTuesday(pd) || isThursday(pd);
 export const isGreaterThan = (pd1, pd2) =>
   Temporal.PlainDate.compare(pd1, pd2) > 0;
 
-export function getArchiveDateTouple(date) {
-  const year = String(date.year);
-  const month = String(date.month).padStart(2, "0");
-
-  return { year, month };
-}
-
 export function getTournUrlRegExp(date) {
   const monthFormatter = new Intl.DateTimeFormat("en", { month: "long" });
 
@@ -34,5 +27,7 @@ export function getTournUrlRegExp(date) {
   const day = String(date.day).padStart(2, "0");
   const year = date.year;
 
-  return new RegExp(`${month}-${day}-${year}`);
+  // return new RegExp(`(?:tuesday|thursday)-(?:[\w\-]*)(?:${month}-${day}-${year})-(?:\d+)`);
+  // return new RegExp(`${month}-${day}-${year}`);
+  return new RegExp(`6609445`);
 }

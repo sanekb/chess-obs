@@ -2,8 +2,8 @@ const S = 1e3;
 const M = 60 * S;
 const H = 60 * M;
 
-export const WATCH_MODE_INTERVAL = 1 * S;
-export const WATCH_MODE_AUTO_OFF = 5;
+export const WATCH_MODE_INTERVAL = 1 * M;
+export const WATCH_MODE_AUTO_OFF = 2.5 * H / M;
 export const API_THROTTLE_TTL = 5 * S;
 
 export const TOOLTIP_DELAY = 2 * S;
