@@ -38,7 +38,7 @@ await setupStore(today(), getGames);
 Deno.cron("setup Titled Tuesday", "0 15 * * TUE", async () => {
   await setupStore(today(), getGames);
 });
-Deno.cron("setup Titled Thursday", "19 20 * * *", async () => {
+Deno.cron("setup Titled Thursday", "0 15 * * THU", async () => {
   await setupStore(today(), getGames);
 });
 

@@ -1,13 +1,7 @@
 import { store } from "@/client/store.js";
 import { PRIZE_FOR_TOP } from "@/consts.js";
 import { Draw, Loss, Win } from "@/client/ui/icons.jsx";
-import {
-  cn,
-  getLastTournDate,
-  noRes,
-  prepareForGrid,
-  prize,
-} from "@/client/utils.js";
+import { cn, noRes, prepareForGrid, prize, today } from "@/client/utils.js";
 
 const Icon = ({ t }) => {
   if (t.r === 1) return <Win />;
@@ -57,8 +51,8 @@ export default function Widget() {
         )}
       >
         {tours.map((t) => <Tour key={t.i} t={t} p={isPrizeEnabled} />)}
-        {tournDateStr.value !== getLastTournDate() && (
-          <div class="flex justify-center items-center tracking-normal text-xxs lg:text-xs text-secondary-200">
+        {tournDateStr.value !== today().toLocaleString() && (
+          <div class="flex justify-start items-center tracking-normal text-xxs lg:text-xs text-secondary-200">
             Турнир от {tournDateStr.value}
           </div>
         )}

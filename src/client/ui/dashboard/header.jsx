@@ -10,25 +10,26 @@ export function Header({ appName, playerName }) {
       </h1>
       <ul class="list-disc text-xs lg:text-sm text-secondary-100 leading-relaxed sm:px-5 lg:px-4 xl:px-6">
         <li>
-          задаётся <strong>последняя до-турнирная партия</strong>{" "}
+          программа получает и отображает результаты{" "}
           <span class="whitespace-nowrap">
-            из архива партий{" "}
+            Титульника заданной даты для{"  "}
             <a
               class="text-secondary-100 hover:text-primary underline transition-all duration-150"
-              href={`https://www.chess.com/member/${playerName.value.toLowerCase()}/games`}
+              href={`https://www.chess.com/member/${playerName.value.toLowerCase()}`}
             >
               {playerName.value}
             </a>
           </span>
         </li>
         <li>
-          результаты всех новых партий <strong>после неё</strong>{" "}
-          <span class="whitespace-nowrap">отображаются в Виджете</span>
+          с началом Титульника программа <strong>автоматически</strong>{" "}
+          применяет <span class="whitespace-nowrap">нужные настройки</span>
         </li>
         <li>
-          загрузка результатов новых партий происходит{" "}
+          все доступные настройки можно изменить{" "}
+          <strong>в ручном режиме</strong>{" "}
           <span class="whitespace-nowrap">
-            либо вручную, либо автоматически
+            соответствующими кнопками
           </span>
         </li>
       </ul>

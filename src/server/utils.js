@@ -7,18 +7,21 @@ export const env = Object.fromEntries(
   ),
 );
 
-export const nocontent = (c) => c.body(null, 204);
+export const noContent = (c) => c.body(null, 204);
 export const emptyFn = () => {};
 
 export const compat = (value) => ({ value });
 
-export const now = () => performance.now();
-export const today = () => Temporal.Now.plainDateISO();
-export const isTuesday = (pd) => pd.dayOfWeek === 2;
-export const isThursday = (pd) => pd.dayOfWeek === 4;
-export const isTournDay = (pd) => isTuesday(pd) || isThursday(pd);
-export const isGreaterThan = (pd1, pd2) =>
-  Temporal.PlainDate.compare(pd1, pd2) > 0;
+export {
+  getLastTournDate,
+  isGreaterThan,
+  isThursday,
+  isTournDay,
+  isTournTime,
+  isTuesday,
+  now,
+  today,
+} from "@/utils.js";
 
 export function getTournUrlRegExp(date) {
   const monthFormatter = new Intl.DateTimeFormat("en", { month: "long" });
@@ -27,7 +30,7 @@ export function getTournUrlRegExp(date) {
   const day = String(date.day).padStart(2, "0");
   const year = date.year;
 
-  // return new RegExp(`(?:tuesday|thursday)-(?:[\w\-]*)(?:${month}-${day}-${year})-(?:\d+)`);
-  // return new RegExp(`${month}-${day}-${year}`);
-  return new RegExp(`6609445`);
+  return new RegExp(
+    `(?:tuesday|thursday)-(?:[\\w\\-]*)(?:${month}-${day}-${year})-(?:\\d+)`,
+  );
 }

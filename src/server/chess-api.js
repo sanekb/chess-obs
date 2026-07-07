@@ -64,8 +64,10 @@ const $fetch = createFetch({
 
 function getCachedGames(error) {
   logger.warn(
-    `using cachedGames cause of ${error ? "ChessAPI {*}" : "API_THROTTLE_TTL"}`,
-    { error },
+    `using cachedGames cause of ${
+      error ? "ChessAPI response: {*}" : "API_THROTTLE_TTL"
+    }`,
+    error,
   );
   return Promise.resolve(cache.games);
 }
@@ -80,7 +82,7 @@ export async function getGames(tournDate) {
     month: String(tournDate.month).padStart(2, "0"),
   };
 
-  logger.debug("request {year} {month}", params);
+  logger.debug("request {*}", params);
 
   const { data, error } = await $fetch("/games/:year/:month", { params });
 

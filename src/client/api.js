@@ -1,28 +1,28 @@
 import { store } from "@/client/store.js";
 import { RECONNECT_DELAYS } from "@/consts.js";
 import { createFetch, createSchema } from "better-fetch";
-import { nocontentSchema } from "@/client/utils.js";
+import { noContentSchema } from "@/client/utils.js";
 
 const chessSchema = createSchema({
   "/change/:dir": {
     method: "post",
-    output: nocontentSchema,
+    output: noContentSchema,
   },
   "/refresh": {
     method: "post",
-    output: nocontentSchema,
+    output: noContentSchema,
   },
   "/watch": {
     method: "post",
-    output: nocontentSchema,
+    output: noContentSchema,
   },
   "/bonus": {
     method: "post",
-    output: nocontentSchema,
+    output: noContentSchema,
   },
   "/prize": {
     method: "post",
-    output: nocontentSchema,
+    output: noContentSchema,
   },
 });
 

@@ -3,7 +3,7 @@ import { serveStatic } from "hono/deno";
 import { basicAuth } from "hono/basic-auth";
 import { streamSSE } from "hono/streaming";
 import { trimTrailingSlash } from "hono/trailing-slash";
-import { emptyFn, env, nocontent } from "@/server/utils.js";
+import { emptyFn, env, noContent } from "@/server/utils.js";
 import { store } from "@/server/store.js";
 import {
   changeTournDate,
@@ -74,31 +74,31 @@ const dashboard = new Hono()
     }),
   )
   .get("/", (c) => {
-    logger.info("user {user} opened Dashboard", { user: c.get("user") });
+    logger.info`user ${c.get("user")} opened Dashboard`;
     return c.html(SSR("dashboard", store.clientify()));
   })
   .post("/change/:dir", async (c) => {
     changeTournDate(parseInt(c.req.param("dir")));
     const games = await getGames(store.tournDate.value);
     updateTourResults(games);
-    return nocontent(c);
+    return noContent(c);
   })
   .post("/refresh", async (c) => {
     const games = await getGames(store.tournDate.value);
     updateTourResults(games);
-    return nocontent(c);
+    return noContent(c);
   })
   .post("/watch", (c) => {
     toggleWatchMode(getGames);
-    return nocontent(c);
+    return noContent(c);
   })
   .post("/bonus", (c) => {
     toggleBonus();
-    return nocontent(c);
+    return noContent(c);
   })
   .post("/prize", (c) => {
     togglePrize();
-    return nocontent(c);
+    return noContent(c);
   });
 
 const widget = new Hono()

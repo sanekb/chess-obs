@@ -9,11 +9,12 @@ import {
 import {
   emptyFn,
   env,
+  getLastTournDate,
   getTournUrlRegExp,
   isGreaterThan,
   isTournDay,
+  isTournTime,
   isTuesday,
-  today,
 } from "@/server/utils.js";
 import { poll } from "@std/async";
 import { getLogger } from "logtape";
@@ -37,7 +38,7 @@ export async function setupStore(today, getGames) {
     toggleWatchMode(getGames);
   }
 
-  if (!isWatchModeEnabled.value && isTournDay(today)) {
+  if (!isWatchModeEnabled.value && isTournDay(today) && isTournTime()) {
     toggleWatchMode(getGames);
   }
 
@@ -50,22 +51,19 @@ export async function setupStore(today, getGames) {
 export function changeTournDate(dir) {
   const { tournDate, tournDateStr } = store;
 
-  const date = today();
-  const toSubt = [0, 4, 0, 1, 0, 1, 2, 3];
-  const lastTD = date.subtract({ days: toSubt[date.dayOfWeek] });
-
   const method = dir > 0 ? "add" : "subtract";
   const amount = isTuesday(tournDate.value)
     ? { 1: 2, 0: 0, [-1]: 5 }
     : { 1: 5, 0: 0, [-1]: 2 };
 
   const newTD = tournDate.value[method]({ days: amount[dir] });
-  const TD = (dir === 0 || isGreaterThan(newTD, lastTD)) ? lastTD : newTD;
+  const lastTD = getLastTournDate();
+  const finTD = (dir === 0 || isGreaterThan(newTD, lastTD)) ? lastTD : newTD;
 
-  tournDate.value = TD;
-  tournDateStr.value = TD.toLocaleString();
+  tournDate.value = finTD;
+  tournDateStr.value = finTD.toLocaleString();
 
-  logger.info("tournDate changed: {date}", { date: tournDateStr.value });
+  logger.info`tournDate changed by dir ${dir}: ${tournDateStr.value}`;
 }
 
 export function updateTourResults(games) {
@@ -82,7 +80,7 @@ export function updateTourResults(games) {
 
   tourResults.value = results;
 
-  logger.info("tourResults changed: {results}", {
+  logger.info("tourResults = [{results}]", {
     results: tourResults.value.map((r) => `${r[0]}${r[1] ? "*" : ""}`).join(
       " ",
     ),
@@ -101,7 +99,6 @@ function watchLoop(getGames) {
     async () => {
       const games = await getGames(tournDate.value);
       updateTourResults(games);
-      // console.log("getGames");
     },
     () => --watchModeAutoOff.value <= 0,
     {

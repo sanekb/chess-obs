@@ -8,7 +8,8 @@ import {
 } from "@/client/ui/dashboard/controls.jsx";
 import { Preview } from "@/client/ui/dashboard/preview.jsx";
 import { Footer } from "@/client/ui/dashboard/footer.jsx";
-import { useSignal, useSignalEffect } from "preact-signals";
+import { useSignal } from "preact-signals";
+import { useCallback } from "preact/hooks";
 import { store } from "@/client/store.js";
 import { APP_NAME, PRIZE_FOR_TOP, TOOLTIP_DELAY } from "@/consts.js";
 import {
@@ -18,7 +19,7 @@ import {
   togglePrize,
   toggleWatchMode,
 } from "@/client/actions.js";
-import { cn, getLastTournDate, nbsp } from "@/client/utils.js";
+import { cn, getLastTournDate } from "@/client/utils.js";
 import { debounce } from "@std/async";
 
 export default function Dashboard() {
@@ -31,15 +32,12 @@ export default function Dashboard() {
     isPrizeEnabled,
   } = store;
 
-  const refreshStatus = useSignal(nbsp);
-  const deb = debounce(() => refreshStatus.value = nbsp, TOOLTIP_DELAY);
-
-  useSignalEffect(() => {
-    if (refreshStatus.value !== nbsp) {
-      deb();
-      return () => deb.clear();
-    }
-  });
+  const refreshStatus = useSignal(false);
+  const refreshTrue = () => refreshStatus.value = true;
+  const refreshFalse = useCallback(
+    debounce(() => refreshStatus.value = false, TOOLTIP_DELAY),
+    [],
+  );
 
   return (
     <>
@@ -58,7 +56,8 @@ export default function Dashboard() {
               <Button onclick={() => changeTournDate(0)}>Последний</Button>
               <Button
                 onclick={() => changeTournDate(1)}
-                disabled={tournDateStr.value === getLastTournDate()}
+                disabled={tournDateStr.value ===
+                  getLastTournDate().toLocaleString()}
               >
                 ⬆
               </Button>
@@ -70,13 +69,13 @@ export default function Dashboard() {
             <Control>
               <Button
                 onclick={() =>
-                  manualRefresh().then((r) =>
-                    !r.error && (refreshStatus.value = { text: "обновлено!" })
-                  )}
+                  manualRefresh().then((
+                    res,
+                  ) => (!res.error && refreshTrue() && refreshFalse()))}
               >
                 Обновить
               </Button>
-              <Span>{refreshStatus.value.text}</Span>
+              <Span>{refreshStatus.value ? "обновлено!" : "вручную"}</Span>
             </Control>
             <Control>
               <Button
