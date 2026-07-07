@@ -44,8 +44,6 @@ export async function setupStore(today, getGames) {
 
   isPrizeEnabled.value = !isTuesday(today);
   isBonusEnabled.value = false;
-
-  logger.info("tournament setuped");
 }
 
 export function changeTournDate(dir) {
@@ -63,7 +61,7 @@ export function changeTournDate(dir) {
   tournDate.value = finTD;
   tournDateStr.value = finTD.toLocaleString();
 
-  logger.info`tournDate changed by dir ${dir}: ${tournDateStr.value}`;
+  logger.info`changeTournDate(${dir}) -> ${tournDateStr.value}`;
 }
 
 export function updateTourResults(games) {
@@ -80,7 +78,7 @@ export function updateTourResults(games) {
 
   tourResults.value = results;
 
-  logger.info("tourResults = [{results}]", {
+  logger.info("updateTourResults -> {results}", {
     results: tourResults.value.map((r) => `${r[0]}${r[1] ? "*" : ""}`).join(
       " ",
     ),
@@ -97,6 +95,7 @@ function watchLoop(getGames) {
 
   poll(
     async () => {
+      logger.debug`watchLoop: ${watchModeAutoOff.value}`;
       const games = await getGames(tournDate.value);
       updateTourResults(games);
     },
@@ -127,14 +126,19 @@ export function toggleWatchMode(getGames) {
     watchModeAutoOff.value = 0;
     watchModeAbortController.value.abort();
   }
+
+  logger.info`toggleWatchMode: ${!isWatchModeEnabled
+    .value} -> ${isWatchModeEnabled.value}`;
 }
 
 export function toggleBonus() {
   const { isBonusEnabled } = store;
   isBonusEnabled.value = !isBonusEnabled.value;
+  logger.info`toggleBonus: ${!isBonusEnabled.value} -> ${isBonusEnabled.value}`;
 }
 
 export function togglePrize() {
   const { isPrizeEnabled } = store;
   isPrizeEnabled.value = !isPrizeEnabled.value;
+  logger.info`togglePrize: ${!isPrizeEnabled.value} -> ${isPrizeEnabled.value}`;
 }

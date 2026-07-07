@@ -50,11 +50,11 @@ export const sseManager = {
   add(s) {
     this.streams.add(s);
     s.writeSSE({ data: JSON.stringify(store.clientify()) });
-    logger.debug("add SSE connection");
+    logger.debug("Add new SSE connection");
   },
   del(s) {
     this.streams.delete(s);
-    logger.debug("del SSE connection");
+    logger.debug("Del SSE connection on abort");
   },
   broadcast(data) {
     this.streams.forEach((s) => !s.aborted && s.writeSSE({ data }));
@@ -74,29 +74,35 @@ const dashboard = new Hono()
     }),
   )
   .get("/", (c) => {
-    logger.info`user ${c.get("user")} opened Dashboard`;
+    logger.info`User ${c.get("user")} opened Dashboard`;
     return c.html(SSR("dashboard", store.clientify()));
   })
   .post("/change/:dir", async (c) => {
-    changeTournDate(parseInt(c.req.param("dir")));
+    const dir = parseInt(c.req.param("dir"));
+    logger.info`POST /change/${dir}`;
+    changeTournDate(dir);
     const games = await getGames(store.tournDate.value);
     updateTourResults(games);
     return noContent(c);
   })
   .post("/refresh", async (c) => {
+    logger.info`POST /refresh`;
     const games = await getGames(store.tournDate.value);
     updateTourResults(games);
     return noContent(c);
   })
   .post("/watch", (c) => {
+    logger.info`POST /watch`;
     toggleWatchMode(getGames);
     return noContent(c);
   })
   .post("/bonus", (c) => {
+    logger.info`POST /bonus`;
     toggleBonus();
     return noContent(c);
   })
   .post("/prize", (c) => {
+    logger.info`POST /prize`;
     togglePrize();
     return noContent(c);
   });

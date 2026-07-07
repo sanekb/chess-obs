@@ -33,12 +33,15 @@ await configure({
 
 const logger = getLogger([APP_NAME, "app"]);
 
+logger.info("Initial store setup");
 await setupStore(today(), getGames);
 
 Deno.cron("setup Titled Tuesday", "0 15 * * TUE", async () => {
+  logger.info("Titled Tuesday store setup");
   await setupStore(today(), getGames);
 });
 Deno.cron("setup Titled Thursday", "0 15 * * THU", async () => {
+  logger.info("Titled Thursday store setup");
   await setupStore(today(), getGames);
 });
 

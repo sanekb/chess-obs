@@ -56,39 +56,43 @@ const $fetch = createFetch({
     cache.etag = ctx.response.headers.get("ETag");
     cache.lastModified = ctx.response.headers.get("Last-Modified");
 
-    logger.info("request to ChessAPI complete in {dur} ms", {
+    logger.debug("Request to ChessAPI complete in {dur} ms", {
       dur: Math.floor(cache.timeEnd - cache.timeStart),
     });
   },
 });
 
 function getCachedGames(error) {
-  logger.warn(
-    `using cachedGames cause of ${
-      error ? "ChessAPI response: {*}" : "API_THROTTLE_TTL"
-    }`,
-    error,
-  );
+  const wasCache = "Using cachedGames because of";
+
+  if (error && error.status >= 400) {
+    logger.warn(
+      `${wasCache} ChessAPI error: {*}`,
+      error,
+    );
+  } else {
+    logger.debug(
+      `${wasCache} ${error ? "ChessAPI response: {*}" : "API_THROTTLE_TTL"}`,
+      error,
+    );
+  }
+
   return Promise.resolve(cache.games);
 }
 
 export async function getGames(tournDate) {
-  if (now() - cache.timeEnd <= API_THROTTLE_TTL) {
-    return getCachedGames();
-  }
-
   const params = {
     year: String(tournDate.year),
     month: String(tournDate.month).padStart(2, "0"),
   };
 
-  logger.debug("request {*}", params);
+  logger.debug("getGames() with params: {*}", params);
+
+  if (now() - cache.timeEnd <= API_THROTTLE_TTL) {
+    return getCachedGames();
+  }
 
   const { data, error } = await $fetch("/games/:year/:month", { params });
-
-  const sc = structuredClone(cache);
-  Reflect.deleteProperty(sc, "games");
-  logger.debug(sc);
 
   return error ? getCachedGames(error) : (cache.games = data.games);
 }
