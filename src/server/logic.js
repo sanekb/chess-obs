@@ -59,7 +59,7 @@ export function changeTournDate(dir) {
   const finTD = (dir === 0 || isGreaterThan(newTD, lastTD)) ? lastTD : newTD;
 
   tournDate.value = finTD;
-  tournDateStr.value = finTD.toLocaleString();
+  tournDateStr.value = finTD.toLocaleString("ru");
 
   logger.info`changeTournDate(${dir}) -> ${tournDateStr.value}`;
 }
