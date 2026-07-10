@@ -1,3 +1,4 @@
+import "temporal-polyfill/global";
 import { store } from "@/client/store.js";
 import dashboard from "@/client/ui/dashboard.jsx";
 import widget from "@/client/ui/widget.jsx";

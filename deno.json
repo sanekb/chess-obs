@@ -17,6 +17,7 @@
     "preact-signals": "npm:@preact/signals@^2.9.2",
     "preact-signals-core": "npm:@preact/signals-core@^1.14.3",
     "tailwind-merge": "npm:tailwind-merge@^3.6.0",
+    "temporal-polyfill": "npm:temporal-polyfill@^1.0.1",
     "valibot": "jsr:@valibot/valibot@^1.4.2"
   },
   "compilerOptions": {
