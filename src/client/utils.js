@@ -35,4 +35,4 @@ export function prepareForGrid(tourResults) {
   };
 }
 
-export { getLastTournDate, today } from "@/utils.js";
+export * from "@/utils.js";

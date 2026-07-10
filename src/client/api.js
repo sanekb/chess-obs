@@ -4,7 +4,7 @@ import { createFetch, createSchema } from "better-fetch";
 import { noContentSchema } from "@/client/utils.js";
 
 const chessSchema = createSchema({
-  "/change/:dir": {
+  "/tourndate/:dir": {
     method: "post",
     output: noContentSchema,
   },
@@ -16,11 +16,15 @@ const chessSchema = createSchema({
     method: "post",
     output: noContentSchema,
   },
+  "/prize": {
+    method: "post",
+    output: noContentSchema,
+  },
   "/bonus": {
     method: "post",
     output: noContentSchema,
   },
-  "/prize": {
+  "/bonus/:dir": {
     method: "post",
     output: noContentSchema,
   },

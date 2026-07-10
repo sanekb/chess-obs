@@ -1,6 +1,7 @@
-import { store } from "@/server/store.js";
 import {
   APP_NAME,
+  BONUS_FOR_TOP30,
+  BONUS_STEP,
   GM_SCORE,
   RESULTS,
   WATCH_MODE_AUTO_OFF,
@@ -12,133 +13,167 @@ import {
   getLastTournDate,
   getTournUrlRegExp,
   isGreaterThan,
-  isTournDay,
-  isTournTime,
+  isTournMoment,
   isTuesday,
+  localDate,
 } from "@/server/utils.js";
 import { poll } from "@std/async";
 import { getLogger } from "logtape";
 
 const logger = getLogger([APP_NAME, "logic"]);
 
-export async function setupStore(today, getGames) {
-  const {
-    tournDate,
-    isWatchModeEnabled,
-    isPrizeEnabled,
-    isBonusEnabled,
-  } = store;
+export function createLogic({ store, chessApi }) {
+  async function prepareStore() {
+    const {
+      tournDate,
+      isWatchModeEnabled,
+      isPrizeEnabled,
+      isBonusEnabled,
+      bonusAmount,
+    } = store;
 
-  changeTournDate(0);
+    if (!isTournMoment()) return;
 
-  const games = await getGames(tournDate.value);
-  updateTourResults(games);
+    changeTournDate(0);
 
-  if (isWatchModeEnabled.value) {
-    toggleWatchMode(getGames);
+    const games = await chessApi.getGames(tournDate.value);
+    updateTourResults(games);
+
+    do {
+      toggleWatchMode();
+    } while (!isWatchModeEnabled.value);
+
+    isPrizeEnabled.value = !isTuesday(tournDate.value);
+    isBonusEnabled.value = false;
+    bonusAmount.value = BONUS_FOR_TOP30;
+
+    logger.info("Store prepared for Tourn by cron");
   }
 
-  if (!isWatchModeEnabled.value && isTournDay(today) && isTournTime()) {
-    toggleWatchMode(getGames);
+  function changeTournDate(dir) {
+    const { tournDate, tournDateStr } = store;
+
+    const method = dir === "next" ? "add" : "subtract";
+    const amount = isTuesday(tournDate.value)
+      ? { prev: 5, last: 0, next: 2 }
+      : { prev: 2, last: 0, next: 5 };
+
+    const newTD = tournDate.value[method]({ days: amount[dir] });
+    const lastTD = getLastTournDate();
+    const finTD = (dir === "last" || isGreaterThan(newTD, lastTD))
+      ? lastTD
+      : newTD;
+
+    tournDate.value = finTD;
+    tournDateStr.value = localDate(finTD);
+
+    logger.info`changeTournDate(${dir}) -> ${tournDateStr.value}`;
   }
 
-  isPrizeEnabled.value = !isTuesday(today);
-  isBonusEnabled.value = false;
-}
+  function updateTourResults(games) {
+    const { tournDate, tourResults } = store;
 
-export function changeTournDate(dir) {
-  const { tournDate, tournDateStr } = store;
+    const regexp = getTournUrlRegExp(tournDate.value);
 
-  const method = dir > 0 ? "add" : "subtract";
-  const amount = isTuesday(tournDate.value)
-    ? { 1: 2, 0: 0, [-1]: 5 }
-    : { 1: 5, 0: 0, [-1]: 2 };
+    const results = games.filter((g) => regexp.test(g.tournament ?? ""))
+      .sort((a, b) => a.end_time - b.end_time).map((g) =>
+        g.white.username === env.playerName
+          ? [RESULTS[g.white.result], g.black.rating >= GM_SCORE]
+          : [RESULTS[g.black.result], g.white.rating >= GM_SCORE]
+      );
 
-  const newTD = tournDate.value[method]({ days: amount[dir] });
-  const lastTD = getLastTournDate();
-  const finTD = (dir === 0 || isGreaterThan(newTD, lastTD)) ? lastTD : newTD;
+    tourResults.value = results;
 
-  tournDate.value = finTD;
-  tournDateStr.value = finTD.toLocaleString("ru");
-
-  logger.info`changeTournDate(${dir}) -> ${tournDateStr.value}`;
-}
-
-export function updateTourResults(games) {
-  const { tournDate, tourResults } = store;
-
-  const regexp = getTournUrlRegExp(tournDate.value);
-
-  const results = games.filter((g) => regexp.test(g.tournament ?? ""))
-    .sort((a, b) => a.end_time - b.end_time).map((g) =>
-      g.white.username === env.playerName
-        ? [RESULTS[g.white.result], g.black.rating >= GM_SCORE]
-        : [RESULTS[g.black.result], g.white.rating >= GM_SCORE]
-    );
-
-  tourResults.value = results;
-
-  logger.info("updateTourResults -> {results}", {
-    results: tourResults.value.map((r) => `${r[0]}${r[1] ? "*" : ""}`).join(
-      " ",
-    ),
-  });
-}
-
-function watchLoop(getGames) {
-  const {
-    tournDate,
-    isWatchModeEnabled,
-    watchModeAutoOff,
-    watchModeAbortController,
-  } = store;
-
-  poll(
-    async () => {
-      logger.debug`watchLoop: ${watchModeAutoOff.value}`;
-      const games = await getGames(tournDate.value);
-      updateTourResults(games);
-    },
-    () => --watchModeAutoOff.value <= 0,
-    {
-      interval: WATCH_MODE_INTERVAL,
-      signal: watchModeAbortController.value.signal,
-    },
-  )
-    .then(() => isWatchModeEnabled.value = false)
-    .catch(emptyFn);
-}
-
-export function toggleWatchMode(getGames) {
-  const {
-    isWatchModeEnabled,
-    watchModeAutoOff,
-    watchModeAbortController,
-  } = store;
-
-  isWatchModeEnabled.value = !isWatchModeEnabled.value;
-
-  if (isWatchModeEnabled.value) {
-    watchModeAutoOff.value = WATCH_MODE_AUTO_OFF;
-    watchModeAbortController.value = new AbortController();
-    watchLoop(getGames);
-  } else {
-    watchModeAutoOff.value = 0;
-    watchModeAbortController.value.abort();
+    logger.info("updateTourResults -> {results}", {
+      results: tourResults.value.map((r) => `${r[0]}${r[1] ? "*" : ""}`).join(
+        " ",
+      ),
+    });
   }
 
-  logger.info`toggleWatchMode: ${!isWatchModeEnabled
-    .value} -> ${isWatchModeEnabled.value}`;
-}
+  function watchLoop() {
+    const {
+      tournDate,
+      tourResults,
+      isWatchModeEnabled,
+      watchModeAutoOff,
+      watchModeAbortController,
+    } = store;
 
-export function toggleBonus() {
-  const { isBonusEnabled } = store;
-  isBonusEnabled.value = !isBonusEnabled.value;
-  logger.info`toggleBonus: ${!isBonusEnabled.value} -> ${isBonusEnabled.value}`;
-}
+    poll(
+      async () => {
+        logger.debug`watchLoop: ${watchModeAutoOff.value}`;
+        const games = await chessApi.getGames(tournDate.value);
+        updateTourResults(games);
+      },
+      () =>
+        (--watchModeAutoOff.value <= 0) || (tourResults.value.length === 11),
+      {
+        interval: WATCH_MODE_INTERVAL,
+        signal: watchModeAbortController.value.signal,
+      },
+    )
+      .then(() => isWatchModeEnabled.value = false)
+      .catch(emptyFn);
+  }
 
-export function togglePrize() {
-  const { isPrizeEnabled } = store;
-  isPrizeEnabled.value = !isPrizeEnabled.value;
-  logger.info`togglePrize: ${!isPrizeEnabled.value} -> ${isPrizeEnabled.value}`;
+  function toggleWatchMode() {
+    const {
+      isWatchModeEnabled,
+      watchModeAutoOff,
+      watchModeAbortController,
+    } = store;
+
+    isWatchModeEnabled.value = !isWatchModeEnabled.value;
+
+    if (isWatchModeEnabled.value) {
+      watchModeAutoOff.value = WATCH_MODE_AUTO_OFF;
+      watchModeAbortController.value = new AbortController();
+      watchLoop();
+    } else {
+      watchModeAutoOff.value = 0;
+      watchModeAbortController.value.abort();
+    }
+
+    logger.info`toggleWatchMode: ${!isWatchModeEnabled
+      .value} -> ${isWatchModeEnabled.value}`;
+  }
+
+  function togglePrize() {
+    const { isPrizeEnabled } = store;
+    isPrizeEnabled.value = !isPrizeEnabled.value;
+    logger.info`togglePrize: ${!isPrizeEnabled
+      .value} -> ${isPrizeEnabled.value}`;
+  }
+
+  function toggleBonus() {
+    const { isBonusEnabled, bonusAmount } = store;
+    isBonusEnabled.value = !isBonusEnabled.value;
+
+    if (isBonusEnabled.value) bonusAmount.value = BONUS_FOR_TOP30;
+
+    logger.info`toggleBonus: ${!isBonusEnabled
+      .value} -> ${isBonusEnabled.value}`;
+  }
+
+  function changeBonusAmount(dir) {
+    const { bonusAmount } = store;
+
+    if (dir === "plus") bonusAmount.value += BONUS_STEP;
+    if (dir === "minus") {
+      bonusAmount.value = Math.max(0, bonusAmount.value - BONUS_STEP);
+    }
+
+    logger.info`changeBonusAmount(${dir}) -> ${bonusAmount.value}`;
+  }
+
+  return {
+    prepareStore,
+    changeTournDate,
+    updateTourResults,
+    toggleWatchMode,
+    togglePrize,
+    toggleBonus,
+    changeBonusAmount,
+  };
 }

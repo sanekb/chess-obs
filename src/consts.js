@@ -13,10 +13,15 @@ export const GM_SCORE = 3100;
 
 export const PRIZE_PER_WIN = 5e3;
 export const PRIZE_FOR_GMs = 10e3;
-export const PRIZE_FOR_TOP = 10e3;
+
+export const BONUS_FOR_TOP30 = 10e3;
+export const BONUS_STEP = 5e3;
 
 export const APP_NAME = "chess-obs";
 export const TAG = "__INIT_DATA__";
+
+export const LOCALE = "ru-RU";
+export const ZONE = "Europe/Paris";
 
 export const RESULTS = {
   "win": 1,

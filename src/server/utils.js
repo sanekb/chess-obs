@@ -1,3 +1,4 @@
+import { today } from "@/utils.js";
 import { loadSync } from "@std/dotenv";
 import { toCamelCase } from "@std/text";
 
@@ -7,21 +8,24 @@ export const env = Object.fromEntries(
   ),
 );
 
+export const sep = "\u001f";
+
 export const noContent = (c) => c.body(null, 204);
+export const badRequest = (c) => c.body(null, 400);
 export const emptyFn = () => {};
 
 export const compat = (value) => ({ value });
 
-export {
-  getLastTournDate,
-  isGreaterThan,
-  isThursday,
-  isTournDay,
-  isTournTime,
-  isTuesday,
-  now,
-  today,
-} from "@/utils.js";
+export const isTuesday = (dt) => dt.dayOfWeek === 2;
+export const isThursday = (dt) => dt.dayOfWeek === 4;
+
+export const isTournMoment = () => {
+  const dt = today();
+  return (isTuesday(dt) || isThursday(dt)) && dt.hour === 12;
+};
+
+export const isGreaterThan = (dt1, dt2) =>
+  Temporal.PlainDateTime.compare(dt1, dt2) > 0;
 
 export function getTournUrlRegExp(date) {
   const monthFormatter = new Intl.DateTimeFormat("en", { month: "long" });
@@ -34,3 +38,5 @@ export function getTournUrlRegExp(date) {
     `(?:tuesday|thursday)-(?:[\\w\\-]*)(?:${month}-${day}-${year})-(?:\\d+)`,
   );
 }
+
+export * from "@/utils.js";

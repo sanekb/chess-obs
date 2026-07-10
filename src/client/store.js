@@ -10,8 +10,9 @@ export const store = {
 
   tourResults: signal([]),
 
+  isPrizeEnabled: signal(false),
   isBonusEnabled: signal(false),
-  isPrizeEnabled: signal(true),
+  bonusAmount: signal(0),
 
   parse(state) {
     Object.entries(state).forEach(([k, v]) => this[k].value = v);

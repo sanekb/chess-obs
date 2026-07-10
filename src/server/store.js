@@ -1,11 +1,12 @@
 import { Signal, signal } from "preact-signals-core";
-import { compat, env, today } from "@/server/utils.js";
+import { compat, env, getLastTournDate, localDate } from "@/server/utils.js";
+import { BONUS_FOR_TOP30 } from "@/consts.js";
 
 export const store = {
   playerName: signal(env.playerName),
 
-  tournDate: compat(today()),
-  tournDateStr: signal(""),
+  tournDate: compat(getLastTournDate()),
+  tournDateStr: signal(localDate(getLastTournDate())),
 
   isWatchModeEnabled: signal(false),
   watchModeAutoOff: signal(0),
@@ -13,8 +14,9 @@ export const store = {
 
   tourResults: signal([]),
 
+  isPrizeEnabled: signal(false),
   isBonusEnabled: signal(false),
-  isPrizeEnabled: signal(true),
+  bonusAmount: signal(BONUS_FOR_TOP30),
 
   clientify() {
     return Object.fromEntries(

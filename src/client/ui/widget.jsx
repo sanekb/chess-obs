@@ -1,7 +1,6 @@
 import { store } from "@/client/store.js";
-import { PRIZE_FOR_TOP } from "@/consts.js";
 import { Draw, Loss, Win } from "@/client/ui/icons.jsx";
-import { cn, noRes, prepareForGrid, prize, today } from "@/client/utils.js";
+import { cn, noRes, prepareForGrid, prize } from "@/client/utils.js";
 
 const Icon = ({ t }) => {
   if (t.r === 1) return <Win />;
@@ -35,7 +34,7 @@ const Tour = ({ t, p }) => {
 };
 
 export default function Widget() {
-  const { isBonusEnabled, isPrizeEnabled, tourResults, tournDateStr } = store;
+  const { isBonusEnabled, isPrizeEnabled, tourResults, bonusAmount } = store;
   const { tours, prize } = prepareForGrid(tourResults.value);
 
   return (
@@ -51,15 +50,15 @@ export default function Widget() {
         )}
       >
         {tours.map((t) => <Tour key={t.i} t={t} p={isPrizeEnabled} />)}
-        {tournDateStr.value !== today().toLocaleString() && (
-          <div class="flex justify-start items-center tracking-normal text-xxs lg:text-xs text-secondary-200">
-            Турнир от {tournDateStr.value}
+        {isPrizeEnabled.value && isBonusEnabled.value && (
+          <div class="flex justify-start items-center text-accent-orange/75">
+            Бонус: {bonusAmount.value}₽
           </div>
         )}
       </div>
       {isPrizeEnabled.value && (
         <div class="px-2 text-accent-orange text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-montserrat font-bold">
-          Приз: {prize + (isBonusEnabled.value ? PRIZE_FOR_TOP : 0)}₽
+          Приз: {prize + (isBonusEnabled.value ? bonusAmount.value : 0)}₽
         </div>
       )}
     </div>

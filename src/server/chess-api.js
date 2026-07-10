@@ -1,98 +1,74 @@
-import { env, now } from "@/server/utils.js";
+import { now, sep } from "@/server/utils.js";
 import { API_THROTTLE_TTL, APP_NAME } from "@/consts.js";
 import * as v from "valibot";
 import { createFetch, createSchema } from "better-fetch";
 import { getLogger } from "logtape";
 
-// const mock = JSON.parse(Deno.readTextFileSync("./src/mock.json"));
-
 const logger = getLogger([APP_NAME, "chess-api"]);
-
-const cache = {
-  games: [],
-
-  timeStart: 0,
-  timeEnd: -API_THROTTLE_TTL,
-
-  etag: "",
-  lastModified: "",
-};
 
 const userSchema = v.object({
   rating: v.number(),
   result: v.string(),
   username: v.string(),
 });
-
 const gameSchema = v.object({
   end_time: v.number(),
   white: userSchema,
   black: userSchema,
   tournament: v.optional(v.string()),
 });
-
-const responseSchema = v.object({
+const gamesSchema = v.object({
   games: v.array(gameSchema),
 });
 
-const chessSchema = createSchema({
-  "/games/:year/:month": {
-    output: responseSchema,
-  },
-});
+export function createChessApi({ playerName, devEmail }) {
+  const chessSchema = createSchema({
+    "/games/:year/:month": {
+      output: gamesSchema,
+    },
+  });
 
-const $fetch = createFetch({
-  baseURL: `https://api.chess.com/pub/player/${env.playerName}`,
-  headers: { "User-Agent": `${APP_NAME}/0.1.2 (contact: ${env.devEmail})` },
-  schema: chessSchema,
-  catchAllError: true,
-  onRequest: (ctx) => {
-    cache.timeStart = now();
-    ctx.headers.set("If-None-Match", cache.etag);
-    ctx.headers.set("If-Modified-Since", cache.lastModified);
-  },
-  onResponse: (ctx) => {
-    cache.timeEnd = now();
-    cache.etag = ctx.response.headers.get("ETag");
-    cache.lastModified = ctx.response.headers.get("Last-Modified");
+  const $fetch = createFetch({
+    baseURL: `https://api.chess.com/pub/player/${playerName}`,
+    headers: { "User-Agent": `${APP_NAME}/0.1.2 (contact: ${devEmail})` },
+    schema: chessSchema,
+    catchAllError: true,
+  });
+
+  let startTime = 0;
+  let endTime = -API_THROTTLE_TTL;
+  const cachedGames = new Map();
+
+  async function getGames(tournDate) {
+    const params = {
+      year: String(tournDate.year),
+      month: String(tournDate.month).padStart(2, "0"),
+    };
+    const slug = `${params.year}${sep}${params.month}`;
+
+    logger.debug("Call getGames() with params: {*}", params);
+
+    if (now() - endTime <= API_THROTTLE_TTL) {
+      logger.debug(`Using cachedGames because of API_THROTTLE_TTL`);
+      return cachedGames.get(slug) ?? [];
+    }
+
+    startTime = now();
+    const { data, error } = await $fetch("/games/:year/:month", { params });
+    endTime = now();
 
     logger.debug("Request to ChessAPI complete in {dur} ms", {
-      dur: Math.floor(cache.timeEnd - cache.timeStart),
+      dur: Math.floor(endTime - startTime),
     });
-  },
-});
 
-function getCachedGames(error) {
-  const wasCache = "Using cachedGames because of";
+    if (error) {
+      logger.warn(`Using cachedGames because of ChessAPI error: {*}`, error);
+      return cachedGames.get(slug) ?? [];
+    }
 
-  if (error && error.status >= 400) {
-    logger.warn(
-      `${wasCache} ChessAPI error: {*}`,
-      error,
-    );
-  } else {
-    logger.debug(
-      `${wasCache} ${error ? "ChessAPI response: {*}" : "API_THROTTLE_TTL"}`,
-      error,
-    );
+    cachedGames.set(slug, data.games);
+    return data.games;
   }
 
-  return Promise.resolve(cache.games);
-}
-
-export async function getGames(tournDate) {
-  const params = {
-    year: String(tournDate.year),
-    month: String(tournDate.month).padStart(2, "0"),
-  };
-
-  logger.debug("getGames() with params: {*}", params);
-
-  if (now() - cache.timeEnd <= API_THROTTLE_TTL) {
-    return getCachedGames();
-  }
-
-  const { data, error } = await $fetch("/games/:year/:month", { params });
-
-  return error ? getCachedGames(error) : (cache.games = data.games);
+  return { getGames };
 }

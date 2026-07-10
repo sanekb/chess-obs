@@ -11,15 +11,16 @@ import { Footer } from "@/client/ui/dashboard/footer.jsx";
 import { useSignal } from "preact-signals";
 import { useCallback } from "preact/hooks";
 import { store } from "@/client/store.js";
-import { APP_NAME, PRIZE_FOR_TOP, TOOLTIP_DELAY } from "@/consts.js";
+import { APP_NAME, TOOLTIP_DELAY } from "@/consts.js";
 import {
+  changeBonusAmount,
   changeTournDate,
   manualRefresh,
   toggleBonus,
   togglePrize,
   toggleWatchMode,
 } from "@/client/actions.js";
-import { cn, getLastTournDate } from "@/client/utils.js";
+import { cn, getLastTournDate, localDate } from "@/client/utils.js";
 import { debounce } from "@std/async";
 
 export default function Dashboard() {
@@ -28,8 +29,9 @@ export default function Dashboard() {
     tournDateStr,
     isWatchModeEnabled,
     watchModeAutoOff,
-    isBonusEnabled,
     isPrizeEnabled,
+    isBonusEnabled,
+    bonusAmount,
   } = store;
 
   const refreshStatus = useSignal(false);
@@ -53,15 +55,23 @@ export default function Dashboard() {
         <Controls>
           <Control>
             <div class="flex items-center gap-1">
-              <Button onclick={() => changeTournDate(0)}>Последний</Button>
               <Button
-                onclick={() => changeTournDate(1)}
+                onclick={() => changeTournDate("last")}
+                active={tournDateStr.value ===
+                  localDate(getLastTournDate())}
                 disabled={tournDateStr.value ===
-                  getLastTournDate().toLocaleString()}
+                  localDate(getLastTournDate())}
+              >
+                Последний
+              </Button>
+              <Button
+                onclick={() => changeTournDate("next")}
+                disabled={tournDateStr.value ===
+                  localDate(getLastTournDate())}
               >
                 ⬆
               </Button>
-              <Button onclick={() => changeTournDate(-1)}>⬇</Button>
+              <Button onclick={() => changeTournDate("prev")}>⬇</Button>
             </div>
             <Span>Турнир от {tournDateStr.value}</Span>
           </Control>
@@ -102,11 +112,28 @@ export default function Dashboard() {
             <Span>{isPrizeEnabled.value ? "видны" : "скрыты"}</Span>
           </Control>
           <Control>
-            <Button onclick={toggleBonus} active={isBonusEnabled.value}>
-              Бонус за топ-30
-            </Button>
+            <div class="flex items-center gap-1">
+              <Button
+                onclick={() => changeBonusAmount("minus")}
+                disabled={!isBonusEnabled.value || bonusAmount.value === 0}
+              >
+                −
+              </Button>
+              <Button
+                onclick={() => toggleBonus()}
+                active={isBonusEnabled.value}
+              >
+                Бонус
+              </Button>
+              <Button
+                onclick={() => changeBonusAmount("plus")}
+                disabled={!isBonusEnabled.value}
+              >
+                +
+              </Button>
+            </div>
             <Span>
-              {isBonusEnabled.value ? `+${PRIZE_FOR_TOP}₽` : "нет"}
+              {isBonusEnabled.value ? `+${bonusAmount.value}₽` : "за топы"}
             </Span>
           </Control>
         </Controls>

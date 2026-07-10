@@ -4,13 +4,12 @@ import {
   getConsoleSink,
   getLogger,
 } from "logtape";
-import { setupStore } from "@/server/logic.js";
-import { effect } from "preact-signals-core";
-import { store } from "@/server/store.js";
-import { app, sseManager } from "@/server/hono.jsx";
+import { createChessApi } from "@/server/chess-api.js";
+import { createLogic } from "@/server/logic.js";
+import { createHono } from "@/server/hono.jsx";
 import { APP_NAME } from "@/consts.js";
-import { env, today } from "@/server/utils.js";
-import { getGames } from "@/server/chess-api.js";
+import { env } from "@/server/utils.js";
+import { store } from "@/server/store.js";
 
 await configure({
   sinks: {
@@ -33,22 +32,17 @@ await configure({
 
 const logger = getLogger([APP_NAME, "app"]);
 
-logger.info("Initial store setup");
-await setupStore(today(), getGames);
-
-Deno.cron("setup Titled Tuesday", "0 15 * * TUE", async () => {
-  logger.info("Titled Tuesday store setup");
-  await setupStore(today(), getGames);
+const chessApi = createChessApi({
+  playerName: env.playerName,
+  devEmail: env.devEmail,
 });
-Deno.cron("setup Titled Thursday", "0 15 * * THU", async () => {
-  logger.info("Titled Thursday store setup");
-  await setupStore(today(), getGames);
-});
+const logic = createLogic({ store, chessApi });
+const hono = createHono({ store, logic, chessApi });
 
-effect(() => {
-  sseManager.broadcast(JSON.stringify(store.clientify()));
+Deno.cron("Prepare store for Tourn", "0 15,16 * * TUE,THU", async () => {
+  await logic.prepareStore();
 });
 
 Deno.serve({
   onListen: (addr) => logger.info`Listening on ${addr.hostname}:${addr.port}`,
-}, app.fetch);
+}, hono.fetch);
