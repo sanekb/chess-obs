@@ -34,7 +34,7 @@ export function createLogic({ store, chessApi }) {
 
     if (!isTournMoment()) return;
 
-    changeTournDate(0);
+    changeTournDate("last");
 
     const games = await chessApi.getGames(tournDate.value);
     updateTourResults(games);

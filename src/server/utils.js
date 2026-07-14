@@ -21,7 +21,7 @@ export const isThursday = (dt) => dt.dayOfWeek === 4;
 
 export const isTournMoment = () => {
   const dt = today();
-  return (isTuesday(dt) || isThursday(dt)) && dt.hour === 12;
+  return (isTuesday(dt) || isThursday(dt)) && dt.hour === 17;
 };
 
 export const isGreaterThan = (dt1, dt2) =>
