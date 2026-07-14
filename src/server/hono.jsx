@@ -130,7 +130,7 @@ export function createHono({ store, logic, chessApi }) {
     .get("/sse", (c) => {
       return streamSSE(c, (s) => {
         const unsub = effect(() =>
-          !s.aborted && s.writeSSE({ data: JSON.stringify(store.clientify()) })
+          s.writeSSE({ data: JSON.stringify(store.clientify()) })
         );
         logger.debug("Add new SSE connection");
 

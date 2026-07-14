@@ -6,7 +6,7 @@ export function Header({ appName, playerName }) {
         <span class="text-2xl lg:text-3xl font-bold tracking-wide text-primary">
           {appName}
         </span>
-        <span class="text-sm text-secondary-200 px-1">v1.2</span>
+        <span class="text-sm text-secondary-200 px-1">v1.3</span>
       </h1>
       <ul class="list-disc text-xs lg:text-sm text-secondary-100 leading-relaxed sm:px-5 lg:px-4 xl:px-6">
         <li>

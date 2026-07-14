@@ -30,7 +30,7 @@ export function createChessApi({ playerName, devEmail }) {
 
   const $fetch = createFetch({
     baseURL: `https://api.chess.com/pub/player/${playerName}`,
-    headers: { "User-Agent": `${APP_NAME}/0.1.2 (contact: ${devEmail})` },
+    headers: { "User-Agent": `${APP_NAME}/1.3 (contact: ${devEmail})` },
     schema: chessSchema,
     catchAllError: true,
   });
