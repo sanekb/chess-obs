@@ -11,7 +11,13 @@ import { Footer } from "@/client/ui/dashboard/footer.jsx";
 import { useSignal } from "preact-signals";
 import { useCallback } from "preact/hooks";
 import { store } from "@/client/store.js";
-import { APP_NAME, TOOLTIP_DELAY } from "@/consts.js";
+import {
+  APP_NAME,
+  M,
+  S,
+  TOOLTIP_DELAY,
+  WATCH_MODE_INTERVAL,
+} from "@/consts.js";
 import {
   changeBonusAmount,
   changeTournDate,
@@ -96,7 +102,10 @@ export default function Dashboard() {
               </Button>
               <Span>
                 {isWatchModeEnabled.value
-                  ? new Date(watchModeAutoOff.value * 1e3).toTimeString()
+                  ? new Date(
+                    watchModeAutoOff.value * WATCH_MODE_INTERVAL / M * S,
+                  )
+                    .toTimeString()
                     .substring(3, 8)
                   : "выключено"}
               </Span>
