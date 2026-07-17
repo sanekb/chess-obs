@@ -1,6 +1,7 @@
 import { today } from "@/utils.js";
 import { loadSync } from "@std/dotenv";
 import { toCamelCase } from "@std/text";
+import { TOURN_START_TIME } from "@/consts.js";
 
 export const env = Object.fromEntries(
   Object.entries(loadSync()).map(
@@ -21,7 +22,10 @@ export const isThursday = (dt) => dt.dayOfWeek === 4;
 
 export const isTournMoment = () => {
   const dt = today();
-  return (isTuesday(dt) || isThursday(dt)) && dt.hour === 17;
+  const mt = dt.toPlainTime();
+  const tt = TOURN_START_TIME;
+  return (isTuesday(dt) || isThursday(dt)) &&
+    (mt.hour === tt.hour && mt.minute === tt.minute);
 };
 
 export const isGreaterThan = (dt1, dt2) =>

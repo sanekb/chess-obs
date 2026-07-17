@@ -2,7 +2,7 @@ export const S = 1e3;
 export const M = 60 * S;
 export const H = 60 * M;
 
-export const WATCH_MODE_INTERVAL = 0.5 * M;
+export const WATCH_MODE_INTERVAL = 30 * S;
 export const WATCH_MODE_AUTO_OFF = 2.5 * H / WATCH_MODE_INTERVAL;
 export const API_THROTTLE_TTL = 5 * S;
 
@@ -42,3 +42,5 @@ export const RESULTS = {
   "kingofthehill": 0,
   "bughousepartnerlose": 0,
 };
+
+export const TOURN_START_TIME = new Temporal.PlainTime(17, 0);
