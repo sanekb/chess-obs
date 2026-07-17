@@ -1,4 +1,5 @@
 import { now, sep } from "@/server/utils.js";
+import { plugin304 } from "@/server/plugin304.js";
 import { API_THROTTLE_TTL, APP_NAME } from "@/consts.js";
 import * as v from "valibot";
 import { createFetch, createSchema } from "better-fetch";
@@ -32,6 +33,7 @@ export function createChessApi({ playerName, devEmail }) {
     baseURL: `https://api.chess.com/pub/player/${playerName}`,
     headers: { "User-Agent": `${APP_NAME}/1.3 (contact: ${devEmail})` },
     schema: chessSchema,
+    plugins: [plugin304],
     catchAllError: true,
   });
 
