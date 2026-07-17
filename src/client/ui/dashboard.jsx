@@ -52,7 +52,7 @@ export default function Dashboard() {
       <Background />
       <div
         class={cn(
-          "w-screen min-h-dvh px-2 md:px-4 py-6",
+          "w-full min-h-dvh px-2 md:px-4 py-6",
           "flex flex-col items-center justify-start gap-8 lg:gap-12",
           "bg-surface-100 text-secondary-200 text-sm font-montserrat",
         )}

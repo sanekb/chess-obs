@@ -89,7 +89,7 @@ function Circles(props) {
 
 export function Background(props) {
   return (
-    <aside class="fixed w-screen h-screen pointer-events-none z-0 opacity-25">
+    <aside class="fixed w-full h-screen pointer-events-none z-0 opacity-25">
       <Circles class="left-[75%] top-[5%]" />
       <Circles class="left-[5%] top-[50%]" />
       <Circles class="left-[50%] top-[90%]" />
