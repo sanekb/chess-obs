@@ -7,7 +7,7 @@ import {
 import { createChessApi } from "@/server/chess-api.js";
 import { createLogic } from "@/server/logic.js";
 import { createHono } from "@/server/hono.jsx";
-import { APP_NAME } from "@/consts.js";
+import { APP_NAME, TOURN_START_CRON } from "@/consts.js";
 import { env } from "@/server/utils.js";
 import { store } from "@/server/store.js";
 
@@ -39,7 +39,7 @@ const chessApi = createChessApi({
 const logic = createLogic({ store, chessApi });
 const hono = createHono({ store, logic, chessApi });
 
-Deno.cron("Prepare store for Tourn", "0 15,16 * * TUE,THU", async () => {
+Deno.cron("Prepare store for Tourn", TOURN_START_CRON, async () => {
   await logic.prepareStore();
 });
 
