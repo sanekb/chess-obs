@@ -1,7 +1,11 @@
 import { LOCALE, ZONE } from "@/consts.js";
 
 export const now = () => performance.now();
-export const today = () => Temporal.Now.plainDateTimeISO(ZONE);
+export const today = () =>
+  Temporal.Now.plainDateTimeISO(ZONE).round({
+    smallestUnit: "minute",
+    roundingMode: "halfExpand",
+  });
 
 export const localDate = (dt) => dt.toPlainDate().toLocaleString(LOCALE);
 
