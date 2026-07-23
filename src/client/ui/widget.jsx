@@ -1,5 +1,5 @@
 import { store } from "@/client/store.js";
-import { Draw, Loss, Win } from "@/client/ui/icons.jsx";
+import { Draw, Loss, NoRes, Win } from "@/client/ui/icons.jsx";
 import { cn, noRes, prepareForGrid, prize } from "@/client/utils.js";
 
 const Icon = ({ t }) => {
@@ -11,7 +11,11 @@ const Icon = ({ t }) => {
 
 const Res = ({ t, p }) => {
   return t.r === noRes
-    ? <span class="ml-3">*{p.value ? ", 0₽" : ""}</span>
+    ? (
+      <span class="flex items-center ml-1.5">
+        <NoRes />
+      </span>
+    )
     : (
       <span
         class={cn("flex items-center ml-1.5", { "animate-fade-in": t.l })}
@@ -43,10 +47,7 @@ export default function Widget() {
         class={cn(
           "grid grid-cols-2 text-primary font-semibold font-montserrat tracking-tighter",
           "text-md sm:text-lg md:text-xl xl:text-2xl",
-          " gap-y-1 xl:gap-y-2",
-          {
-            "gap-x-2 sm:gap-x-4 md:gap-x-5 xl:gap-x-6": isPrizeEnabled.value,
-          },
+          " gap-y-1 xl:gap-y-2 gap-x-2 sm:gap-x-4 md:gap-x-5 xl:gap-x-6",
         )}
       >
         {tours.map((t) => <Tour key={t.i} t={t} p={isPrizeEnabled} />)}

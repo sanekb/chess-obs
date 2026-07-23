@@ -23,7 +23,7 @@ export const TAG = "__INIT_DATA__";
 export const LOCALE = "ru-RU";
 export const ZONE = "Europe/Paris";
 
-export const TOURN_START_TIME = new Temporal.PlainTime(17, 0);
+export const TOURN_START_TIME = new Temporal.PlainTime(16, 55);
 export const TOURN_START_CRON = `${TOURN_START_TIME.minute} ${
   TOURN_START_TIME.hour - 2
 },${TOURN_START_TIME.hour - 1} * * TUE,THU`;
