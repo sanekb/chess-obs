@@ -23,27 +23,15 @@ export const TAG = "__INIT_DATA__";
 export const LOCALE = "ru-RU";
 export const ZONE = "Europe/Paris";
 
-export const TOURN_START_TIME = new Temporal.PlainTime(16, 55);
+export const TOURN_START_TIME = new Temporal.PlainTime(16, 55); // CET/CEST
 export const TOURN_START_CRON = `${TOURN_START_TIME.minute} ${
   TOURN_START_TIME.hour - 2
 },${TOURN_START_TIME.hour - 1} * * TUE,THU`;
 
+export const TOURS = 11;
+
 export const RESULTS = {
-  "win": 1,
-
-  "agreed": 0.5,
-  "50move": 0.5,
-  "stalemate": 0.5,
-  "repetition": 0.5,
-  "insufficient": 0.5,
-  "timevsinsufficient": 0.5,
-
-  "lose": 0,
-  "timeout": 0,
-  "resigned": 0,
-  "abandoned": 0,
-  "checkmated": 0,
-  "threecheck": 0,
-  "kingofthehill": 0,
-  "bughousepartnerlose": 0,
+  "PLAYER_RESULT_WIN": 1,
+  "PLAYER_RESULT_DRAW": 0.5,
+  "PLAYER_RESULT_LOSE": 0,
 };

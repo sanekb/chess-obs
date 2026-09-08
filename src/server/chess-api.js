@@ -1,6 +1,6 @@
 import { now, sep } from "@/server/utils.js";
 import { plugin304 } from "@/server/plugin304.js";
-import { API_THROTTLE_TTL, APP_NAME } from "@/consts.js";
+import { API_THROTTLE_TTL, APP_NAME, ZONE } from "@/consts.js";
 import * as v from "valibot";
 import { createFetch, createSchema } from "better-fetch";
 import { getLogger } from "logtape";
@@ -8,32 +8,67 @@ import { getLogger } from "logtape";
 const logger = getLogger([APP_NAME, "chess-api"]);
 
 const userSchema = v.object({
-  rating: v.number(),
-  result: v.string(),
-  username: v.string(),
+  "displayName": v.string(),
+  "finalRating": v.number(),
+  "ratingDiff": v.number(),
+  "rating": v.optional(v.number()),
+  "result": v.string(),
 });
 const gameSchema = v.object({
-  end_time: v.number(),
-  white: userSchema,
-  black: userSchema,
-  tournament: v.optional(v.string()),
+  "game": v.object({
+    "endedAt": v.string(),
+    "chessGame": v.object({
+      "whitePlayer": userSchema,
+      "blackPlayer": userSchema,
+    }),
+    "tournamentData": v.optional(v.object({
+      "round": v.number(),
+    })),
+  }),
 });
+const flatSchema = v.pipe(
+  gameSchema,
+  v.transform((input) => {
+    const { endedAt, chessGame, tournamentData } = input.game;
+    const { whitePlayer, blackPlayer } = chessGame;
+
+    const white = {
+      username: whitePlayer.displayName,
+      rating: whitePlayer.finalRating - whitePlayer.ratingDiff,
+      result: whitePlayer.result,
+    };
+    const black = {
+      username: blackPlayer.displayName,
+      rating: blackPlayer.finalRating - blackPlayer.ratingDiff,
+      result: blackPlayer.result,
+    };
+
+    return {
+      endedAt: Temporal.Instant.from(endedAt).toZonedDateTimeISO(ZONE)
+        .toPlainDateTime(),
+      white,
+      black,
+      tour: tournamentData?.round,
+    };
+  }),
+);
 const gamesSchema = v.object({
-  games: v.array(gameSchema),
+  "hydratedGames": v.array(flatSchema),
 });
 
-export function createChessApi({ playerName, devEmail }) {
+export function createChessApi({ playerName, playerId, devEmail }) {
   const chessSchema = createSchema({
-    "/games/:year/:month": {
+    "@post/HydrateGamesByCriteria": {
       output: gamesSchema,
     },
   });
 
   const $fetch = createFetch({
-    baseURL: `https://api.chess.com/pub/player/${playerName}`,
-    headers: { "User-Agent": `${APP_NAME}/1.3 (contact: ${devEmail})` },
+    baseURL:
+      `https://www.chess.com/service/player-game-archive-v2/chesscom.game_gateway.v2.GameGatewayService`,
+    headers: { "User-Agent": `${APP_NAME}/1.4 (contact: ${devEmail})` },
     schema: chessSchema,
-    plugins: [plugin304],
+    // plugins: [plugin304],
     catchAllError: true,
   });
 
@@ -42,13 +77,13 @@ export function createChessApi({ playerName, devEmail }) {
   const cachedGames = new Map();
 
   async function getGames(tournDate) {
-    const params = {
-      year: String(tournDate.year),
-      month: String(tournDate.month).padStart(2, "0"),
-    };
-    const slug = `${params.year}${sep}${params.month}`;
+    // const params = {
+    //   year: String(tournDate.year),
+    //   month: String(tournDate.month).padStart(2, "0"),
+    // };
+    const slug = `HydrateGamesByCriteria`;
 
-    logger.debug("Call getGames() with params: {*}", params);
+    logger.debug("Call getGames()");
 
     if (now() - endTime <= API_THROTTLE_TTL) {
       logger.debug(`Using cachedGames because of API_THROTTLE_TTL`);
@@ -56,7 +91,19 @@ export function createChessApi({ playerName, devEmail }) {
     }
 
     startTime = now();
-    const { data, error } = await $fetch("/games/:year/:month", { params });
+    const { data, error } = await $fetch("@post/HydrateGamesByCriteria", {
+      body: {
+        "criteria": {
+          "username": playerName,
+          "isVsComputer": false,
+          "page": 1,
+          "pageSize": 50,
+          "playerId": playerId,
+          "isVsCoach": false,
+        },
+        "fieldMask": "game",
+      },
+    });
     endTime = now();
 
     logger.debug("Request to ChessAPI complete in {dur} ms", {
@@ -68,8 +115,8 @@ export function createChessApi({ playerName, devEmail }) {
       return cachedGames.get(slug) ?? [];
     }
 
-    cachedGames.set(slug, data.games);
-    return data.games;
+    cachedGames.set(slug, data.hydratedGames);
+    return data.hydratedGames;
   }
 
   return { getGames };

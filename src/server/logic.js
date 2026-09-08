@@ -4,6 +4,7 @@ import {
   BONUS_STEP,
   GM_SCORE,
   RESULTS,
+  TOURS,
   WATCH_MODE_AUTO_OFF,
   WATCH_MODE_INTERVAL,
 } from "@/consts.js";
@@ -13,9 +14,11 @@ import {
   getLastTournDate,
   getTournUrlRegExp,
   isGreaterThan,
+  isLessThan,
   isTournMoment,
   isTuesday,
   localDate,
+  noRes,
 } from "@/server/utils.js";
 import { poll } from "@std/async";
 import { getLogger } from "logtape";
@@ -73,14 +76,19 @@ export function createLogic({ store, chessApi }) {
   function updateTourResults(games) {
     const { tournDate, tourResults } = store;
 
-    const regexp = getTournUrlRegExp(tournDate.value);
+    const results = Array(TOURS).fill(null).map((e) => [noRes, false]);
 
-    const results = games.filter((g) => regexp.test(g.tournament ?? ""))
-      .sort((a, b) => a.end_time - b.end_time).map((g) =>
-        g.white.username === env.playerName
+    games
+      .filter((g) =>
+        (g.tour !== undefined) &&
+        (isGreaterThan(g.endedAt, tournDate.value) &&
+          isLessThan(g.endedAt, tournDate.value.add({ hours: 3 })))
+      )
+      .forEach((g) => {
+        results[g.tour - 1] = g.white.username === env.playerName
           ? [RESULTS[g.white.result], g.black.rating >= GM_SCORE]
-          : [RESULTS[g.black.result], g.white.rating >= GM_SCORE]
-      );
+          : [RESULTS[g.black.result], g.white.rating >= GM_SCORE];
+      });
 
     tourResults.value = results;
 
@@ -107,7 +115,8 @@ export function createLogic({ store, chessApi }) {
         updateTourResults(games);
       },
       () =>
-        (--watchModeAutoOff.value <= 0) || (tourResults.value.length === 11),
+        (--watchModeAutoOff.value <= 0) ||
+        (tourResults.value[TOURS - 1][0] !== noRes),
       {
         interval: WATCH_MODE_INTERVAL,
         signal: watchModeAbortController.value.signal,

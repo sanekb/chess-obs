@@ -2,13 +2,13 @@ import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import * as v from "valibot";
 import { PRIZE_FOR_GMs, PRIZE_PER_WIN } from "@/consts.js";
+import { noRes } from "@/utils.js";
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
 export const noContentSchema = v.literal("");
-export const noRes = "*";
 
 export const prize = (g) => g ? PRIZE_FOR_GMs : PRIZE_PER_WIN;
 

@@ -22,14 +22,15 @@ export const isThursday = (dt) => dt.dayOfWeek === 4;
 
 export const isTournMoment = () => {
   const dt = today();
-  const mt = dt.toPlainTime();
   const tt = TOURN_START_TIME;
   return (isTuesday(dt) || isThursday(dt)) &&
-    (mt.hour === tt.hour && mt.minute === tt.minute);
+    (dt.hour === tt.hour && dt.minute === tt.minute);
 };
 
 export const isGreaterThan = (dt1, dt2) =>
   Temporal.PlainDateTime.compare(dt1, dt2) > 0;
+export const isLessThan = (dt1, dt2) =>
+  Temporal.PlainDateTime.compare(dt1, dt2) < 0;
 
 export function getTournUrlRegExp(date) {
   const monthFormatter = new Intl.DateTimeFormat("en", { month: "long" });

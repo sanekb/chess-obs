@@ -34,6 +34,7 @@ const logger = getLogger([APP_NAME, "app"]);
 
 const chessApi = createChessApi({
   playerName: env.playerName,
+  playerId: env.playerId,
   devEmail: env.devEmail,
 });
 const logic = createLogic({ store, chessApi });
