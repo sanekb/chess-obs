@@ -14,7 +14,7 @@ export const prize = (g) => g ? PRIZE_FOR_GMs : PRIZE_PER_WIN;
 
 export function prepareForGrid(tourResults) {
   const tours = [];
-  const last = tourResults.length;
+  const last = tourResults.findLastIndex(([r]) => r !== noRes) + 1;
   const push = (i) => {
     const [r, g] = tourResults[i - 1] ?? [noRes, false];
     tours.push({ i, r, g, l: i === last });

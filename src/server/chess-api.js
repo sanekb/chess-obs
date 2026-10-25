@@ -1,6 +1,12 @@
 import { now, sep } from "@/server/utils.js";
 import { plugin304 } from "@/server/plugin304.js";
-import { API_THROTTLE_TTL, APP_NAME, ZONE } from "@/consts.js";
+import {
+  API_THROTTLE_TTL,
+  API_TIMEOUT,
+  APP_NAME,
+  APP_VERSION,
+  ZONE,
+} from "@/consts.js";
 import * as v from "valibot";
 import { createFetch, createSchema } from "better-fetch";
 import { getLogger } from "logtape";
@@ -66,7 +72,9 @@ export function createChessApi({ playerName, playerId, devEmail }) {
   const $fetch = createFetch({
     baseURL:
       `https://www.chess.com/service/player-game-archive-v2/chesscom.game_gateway.v2.GameGatewayService`,
-    headers: { "User-Agent": `${APP_NAME}/1.4 (contact: ${devEmail})` },
+    headers: {
+      "User-Agent": `${APP_NAME}/${APP_VERSION} (contact: ${devEmail})`,
+    },
     schema: chessSchema,
     // plugins: [plugin304],
     catchAllError: true,
@@ -103,6 +111,7 @@ export function createChessApi({ playerName, playerId, devEmail }) {
         },
         "fieldMask": "game",
       },
+      timeout: API_TIMEOUT,
     });
     endTime = now();
 

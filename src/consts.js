@@ -5,6 +5,7 @@ export const H = 60 * M;
 export const WATCH_MODE_INTERVAL = 30 * S;
 export const WATCH_MODE_AUTO_OFF = 2.5 * H / WATCH_MODE_INTERVAL;
 export const API_THROTTLE_TTL = 5 * S;
+export const API_TIMEOUT = 10 * S;
 
 export const TOOLTIP_DELAY = 2 * S;
 export const RECONNECT_DELAYS = [5 * S, 10 * S, 30 * S, 60 * S];
@@ -18,6 +19,7 @@ export const BONUS_FOR_TOP30 = 10e3;
 export const BONUS_STEP = 5e3;
 
 export const APP_NAME = "chess-obs";
+export const APP_VERSION = "1.4.1";
 export const TAG = "__INIT_DATA__";
 
 export const LOCALE = "ru-RU";
